@@ -1,0 +1,35 @@
+Metrics/LineLength:
+  Max: 120
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+  ConsistentQuotesInMultiline: true
+  Enabled: true
+
+Style/StringLiteralsInInterpolation:
+  EnforcedStyle: double_quotes
+
+Style/LambdaCall:
+  Enabled: false
+
+Metrics/BlockLength:
+  Exclude:
+    - ./**/*_spec*.rb
+    - ./spec/*_helper*.rb
+    - ./spec/support/*
+    - ./spec/support/**/*
+    - Gemfile
+
+Metrics/ModuleLength:
+  Exclude:
+    - ./**/*_spec*.rb
+    - ./spec/support/**/*
+
+Metrics/MethodLength:
+  Exclude:
+    - ./**/*_spec*.rb
+    - ./spec/support/**/*
+
+Lint/AmbiguousBlockAssociation:
+  Exclude:
+    - ./**/*_spec.rb
