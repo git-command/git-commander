@@ -9,9 +9,10 @@ require "git_commander"
 
 require_relative "support/command_helpers"
 
+Dir[File.expand_path("../support/**/*.rb", __dir__)].each { |f| require f }
+
 RSpec.configure do |config|
   config.include CommandHelpers
-
   config.expect_with :rspec do |c|
     c.syntax = %i[should expect]
   end
