@@ -6,13 +6,6 @@ module GitCommander
   # Handles logging for GitCommander
   class Logger < ::Logger
     DEFAULT_LOG_FILE = "/tmp/git-commander.log"
-    COLORS = {
-      "FATAL" => :red,
-      "ERROR" => :red,
-      "WARN" => :orange,
-      "INFO" => :yellow,
-      "DEBUG" => :white
-    }.freeze
 
     def initialize(*args)
       log_file = args.shift || log_file_path
@@ -25,11 +18,7 @@ module GitCommander
     class SimpleFormatter < ::Logger::Formatter
       # This method is invoked when a log event occurs
       def call(severity, _timestamp, _progname, msg)
-        if $stdout.tty?
-          "#{severity.colorize(COLORS[severity])}: #{String === msg ? msg : msg.inspect}\n"
-        else
-          "#{severity}: #{String === msg ? msg : msg.inspect}\n"
-        end
+        "#{severity}: #{String === msg ? msg : msg.inspect}\n"
       end
     end
 
@@ -46,6 +35,5 @@ module GitCommander
 
       @log_file_path = configured_log_file_path
     end
-
   end
 end
