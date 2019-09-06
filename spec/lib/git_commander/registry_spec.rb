@@ -17,9 +17,9 @@ describe GitCommander::Registry do
   it "allows registering commands with switches"
   it "allows re-registering existing commands" do
     registry.register(:wtf, arguments: { day: :today })
-    expect(registry.commands[:wtf][:arguments]).to eq(day: :today)
+    expect(registry.find(:wtf).arguments).to eq(day: :today)
     registry.register(:wtf, arguments: { message: nil })
-    expect(registry.commands[:wtf][:arguments]).to eq(message: nil)
+    expect(registry.find(:wtf).arguments).to eq(message: nil)
   end
 
   it "allows looking up a registered command" do
