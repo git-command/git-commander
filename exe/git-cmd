@@ -5,3 +5,7 @@ $LOAD_PATH.unshift "#{__dir__}/../lib"
 
 require "rubygems"
 require "git_commander"
+require "git_commander/cli"
+
+runner = GitCommander::CLI.new
+runner.run

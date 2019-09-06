@@ -15,8 +15,10 @@ module GitCommander
 
     # Runs a GitCommander command
     def run(args = ARGV)
-      command = registry.find Array(args).shift
-      command.run
+      arguments = Array(args)
+      command = registry.find arguments.shift
+      GitCommander.logger.info "CLI attempting to run #{command} with arguments: #{arguments.inspect}"
+      command.run arguments
     rescue Registry::CommandNotFound
       GitCommander.logger.error "#{command} not found in registry.  Available commands: #{registry.commands.keys.inspect}"
       help
@@ -28,8 +30,9 @@ module GitCommander
       say "VERSION"
       say "    #{GitCommander::VERSION}"
       say "USAGE"
-      say "    git-reflow command [command options] [arguments...]"
+      say "    git-cmd command [command options] [arguments...]"
       say "COMMANDS"
+      say registry.commands.keys.join(", ")
     end
 
     def say(message)
