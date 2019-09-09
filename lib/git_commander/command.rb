@@ -5,10 +5,11 @@ module GitCommander
   class Command
     attr_accessor :name, :arguments, :options
 
-    def initialize(name, arguments: {}, **options)
+    def initialize(name, arguments: {}, registry: nil, **options)
       @name = name
       @arguments = arguments
       @options = options
+      @registry = registry || GitCommander::Registry.new
     end
 
     def run(args = [])
