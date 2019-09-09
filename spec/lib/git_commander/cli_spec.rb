@@ -41,7 +41,17 @@ describe GitCommander::CLI do
     cli.run target_command
   end
 
-  it "runs registered commands with arguments"
+  it "runs registered commands with arguments" do
+    target_command = "wtf"
+    arguments = ["What's up with that?", "And this?"]
+    mock_command = instance_double(GitCommander::Command)
+    expect(registry).to receive(:find).with(target_command).and_return(mock_command)
+    expect(mock_command).to receive(:run).with(arguments)
+    expect(cli).to_not receive(:help)
+
+    cli.run [target_command, *arguments]
+  end
+
   it "runs registered commands with options"
   it "runs registered commands with arguments and options"
 end
