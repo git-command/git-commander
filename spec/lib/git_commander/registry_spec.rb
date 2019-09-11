@@ -12,9 +12,30 @@ describe GitCommander::Registry do
     expect(registry.commands[:wtf]).to be
   end
 
-  it "allows registering commands with arguments"
-  it "allows registering commands with flags"
-  it "allows registering commands with switches"
+  it "allows registering commands with arguments" do
+    registry.register :wtf, arguments: { first: nil, second: nil }
+    wtf_command = registry.find(:wtf)
+    expect(wtf_command).to be
+    expect(wtf_command.arguments).to eql(first: nil, second: nil)
+  end
+
+  it "allows registering commands with flags" do
+    registry.register :wtf, arguments: %i[first second], flags: { raise_hell: false }
+    wtf_command = registry.find(:wtf)
+    expect(wtf_command).to be
+    expect(wtf_command.arguments).to eql(first: nil, second: nil)
+    expect(wtf_command.flags).to eql(raise_hell: false)
+  end
+
+  it "allows registering commands with switches" do
+    registry.register :wtf, arguments: %i[first second], flags: { raise_hell: false }, switches: { clobber: true }
+    wtf_command = registry.find(:wtf)
+    expect(wtf_command).to be
+    expect(wtf_command.arguments).to eql(first: nil, second: nil)
+    expect(wtf_command.flags).to eql(raise_hell: false)
+    expect(wtf_command.switches).to eql(clobber: true)
+  end
+
   it "allows re-registering existing commands" do
     registry.register(:wtf, arguments: { day: :today })
     expect(registry.find(:wtf).arguments).to eq(day: :today)
