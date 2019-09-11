@@ -3,15 +3,16 @@
 module GitCommander
   # @abstract Wraps domain logic for executing git-cmd commands
   class Command
-    attr_accessor :name, :arguments, :flags, :switches, :block
+    attr_reader :arguments, :block, :description, :flags, :switches, :name
 
     def initialize(name, registry: nil, **options)
       @name = name
       @arguments = parse_array_or_hash(options[:arguments] || {})
       @flags = parse_array_or_hash(options[:flags] || {})
       @switches = parse_array_or_hash(options[:switches] || {})
-      @registry = registry || GitCommander::Registry.new
+      @description = options[:description] || ""
       @block = options[:block] || proc {}
+      @registry = registry || GitCommander::Registry.new
     end
 
     def run(args = [])
