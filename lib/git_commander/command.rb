@@ -4,6 +4,7 @@ module GitCommander
   # @abstract Wraps domain logic for executing git-cmd commands
   class Command
     attr_reader :arguments, :block, :description, :flags, :switches, :name
+    attr_accessor :output
 
     def initialize(name, registry: nil, **options)
       @name = name
@@ -13,10 +14,15 @@ module GitCommander
       @description = options[:description] || ""
       @block = options[:block] || proc {}
       @registry = registry || GitCommander::Registry.new
+      @output = options[:output] || STDOUT
     end
 
     def run(args = [])
       GitCommander.logger.info "Running '#{name}' with arguments: #{args.inspect}"
+    end
+
+    def say(message)
+      output.puts message
     end
 
     private
