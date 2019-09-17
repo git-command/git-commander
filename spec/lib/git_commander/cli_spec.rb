@@ -7,7 +7,7 @@ describe GitCommander::CLI do
   let(:cli) { described_class.new(output: output, registry: registry) }
   let(:registry) { GitCommander::Registry.new }
   let(:output) { spy("output") }
-  let(:logger) { instance_double GitCommander::Logger, info: true, debug: true, error: true }
+  let(:logger) { Logger.new("tmp/kenny-loggins.log") }
 
   before do
     allow(GitCommander).to receive(:logger).and_return(logger)
@@ -33,9 +33,9 @@ describe GitCommander::CLI do
 
   it "runs registered commands without arguments" do
     target_command = "bobo"
-    mock_command = instance_double(GitCommander::Command)
-    expect(registry).to receive(:find).with(target_command).and_return(mock_command)
-    expect(mock_command).to receive(:run)
+    command = GitCommander::Command.new :zombie, output: output
+    expect(registry).to receive(:find).with(target_command).and_return(command)
+    expect(command).to receive(:run)
     expect(cli).to_not receive(:help)
 
     cli.run target_command
@@ -44,14 +44,58 @@ describe GitCommander::CLI do
   it "runs registered commands with arguments" do
     target_command = "wtf"
     arguments = ["What's up with that?", "And this?"]
-    mock_command = instance_double(GitCommander::Command)
-    expect(registry).to receive(:find).with(target_command).and_return(mock_command)
-    expect(mock_command).to receive(:run).with(arguments)
+    command = GitCommander::Command.new :zombie, arguments: [{ name: :this }, { name: :that }], output: output
+    expect(registry).to receive(:find).with(target_command).and_return(command)
+    expect(command).to receive(:run).with(this: arguments.first, that: arguments.last)
     expect(cli).to_not receive(:help)
 
     cli.run [target_command, *arguments]
   end
 
-  it "runs registered commands with options"
-  it "runs registered commands with arguments and options"
+  it "runs registered commands with options" do
+    command = GitCommander::Command.new(
+      :zombie,
+      flags: [{ name: :question, default: "What's up with that?" }],
+      output: output
+    )
+    expect(registry).to receive(:find).with("zombie").and_return(command)
+    expect(command).to receive(:run).with(question: "Yo dawg, zombies?")
+    expect(cli).to_not receive(:help)
+
+    cli.run ["zombie", "--question", "Yo dawg, zombies?"]
+  end
+
+  it "runs registered commands with options using defaults" do
+    command = GitCommander::Command.new(
+      :zombie,
+      flags: [{ name: :question, default: "What's up with that?" }],
+      output: output
+    )
+    expect(registry).to receive(:find).with("zombie").and_return(command)
+    expect(command).to receive(:run).with(question: "What's up with that?")
+    expect(cli).to_not receive(:help)
+
+    cli.run ["zombie"]
+  end
+
+  it "runs registered commands with arguments and options" do
+    arguments = ["What's up with that?", "And this?"]
+    command = GitCommander::Command.new(
+      :zombie,
+      arguments: [{ name: :this }, { name: :that }],
+      flags: [{ name: :question, default: "What's up with that?" }],
+      switches: [{ name: :auto_answer, default: false }],
+      output: output
+    )
+    expect(registry).to receive(:find).with("zombie").and_return(command)
+    expect(command).to receive(:run).with(
+      this: arguments.first,
+      that: arguments.last,
+      question: "Yo dawg, zombies?",
+      auto_answer: true
+    )
+    expect(cli).to_not receive(:help)
+
+    cli.run ["zombie", "-q", "Yo dawg, zombies?", "--auto-answer", *arguments]
+  end
 end
