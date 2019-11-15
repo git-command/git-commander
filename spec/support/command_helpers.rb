@@ -2,9 +2,14 @@
 
 require "fileutils"
 require "stringio"
+require "open3"
 
 module CommandHelpers
   Command = Struct.new(:exit_status, :output, :error)
+
+  def git_cmd_path
+    File.expand_path File.join("exe", "git-cmd")
+  end
 
   def setup_environment
     setup_home_dir
@@ -50,12 +55,11 @@ module CommandHelpers
   end
 
   def run_system_call(command_string)
-    output, error = capture_io do
-      last_command.exit_status = run_in_test_context(command_string) { `#{command_string}` } ? 0 : 1
+    last_command.output, last_command.error, last_command.exit_status = run_in_test_context do
+      arguments = command_string.split(" ").reject { |a| a.empty? }
+      command = arguments.shift
+      Open3.capture3(command, *arguments)
     end
-
-    last_command.output = output
-    last_command.error = error
   end
 
   def run_in_test_context(&block)
