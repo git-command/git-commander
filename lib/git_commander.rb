@@ -3,6 +3,7 @@
 require "git_commander/command"
 require "git_commander/logger"
 require "git_commander/registry"
+require "git_commander/system"
 require "git_commander/version"
 
 # GitCommander is the global module used to house the global logger
