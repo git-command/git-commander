@@ -8,13 +8,13 @@ module GitCommander
   class System
     DEFAULT_RUN_OPTIONS = {
       silent: false,
-      with_system: false
     }.freeze
 
     class Command
       attr_accessor :output, :error, :status
-      attr_reader :name, :arguments, :options
+      attr_reader :name, :arguments, :options, :command_with_arguments
       def initialize(command_with_arguments, options = {})
+        @command_with_arguments = command_with_arguments
         @arguments = command_with_arguments.to_s.split(" ").reject { |p| p.empty? }
         @name = @arguments.shift
         @options = DEFAULT_RUN_OPTIONS.merge(options)
@@ -53,11 +53,8 @@ module GitCommander
     # @param [Hash] options the options to run the command with
     # @option options [Boolean] :silent Supress the output of the command
     # @option options [Boolean] :blocking Supress errors running the command
-    # @option options [Boolean] :with_system Execute command in a subshell using `system`
     def self.run(command_with_arguments, options = {})
       command = Command.new(command_with_arguments, options)
-
-      return system(command_with_arguments) if options[:with_system] == true
 
       command.run
 
