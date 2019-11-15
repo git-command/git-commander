@@ -51,27 +51,28 @@ module CommandHelpers
 
   def run_system_call(command_string)
     output, error = capture_io do
-      last_command.exit_status = execute_command_in_test_context(arguments) ? 0 : 1
+      last_command.exit_status = run_in_test_context(command_string) { `#{command_string}` } ? 0 : 1
     end
 
     last_command.output = output
     last_command.error = error
   end
 
-  private
-
-  def execute_command_in_test_context
+  def run_in_test_context(&block)
     Dir.chdir project_dir do
       yield
     end
   end
+
+
+  private
 
   def home_dir
     expand_path "home"
   end
 
   def project_dir
-    expand_path "project"
+    "#{home_dir}/project"
   end
 
   def expand_path(path)
@@ -80,13 +81,5 @@ module CommandHelpers
 
   def clear_workspace
     FileUtils.rm_rf(home_dir)
-  end
-
-  before :suite do
-    setup_environment
-  end
-
-  after :suite do
-    command_helpers_teardown
   end
 end

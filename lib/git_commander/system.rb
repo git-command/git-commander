@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require "English"
+require "singleton"
+require "open3"
 
 module GitCommander
   # @abstract A wrapper for system calls
@@ -10,28 +11,62 @@ module GitCommander
       with_system: false
     }.freeze
 
+    class Command
+      attr_accessor :output, :error, :status
+      attr_reader :name, :arguments, :options
+      def initialize(command_with_arguments, options = {})
+        @arguments = command_with_arguments.to_s.split(" ").reject { |p| p.empty? }
+        @name = @arguments.shift
+        @options = DEFAULT_RUN_OPTIONS.merge(options)
+      end
+
+      def run
+        log_command_initiated
+        @output, @error, @status = Open3.capture3(name, *arguments)
+        log_command_completed
+      end
+
+      private
+
+      def log_command_initiated
+        GitCommander.logger.debug <<~COMMAND_LOG
+          [system] Running #{name} with arguments #{arguments.inspect} and options #{options.inspect} ...
+          COMMAND_LOG
+      end
+
+      def log_command_completed
+        GitCommander.logger.debug <<~COMMAND_LOG
+          [system] Ran #{name} with arguments #{arguments.inspect} and options #{options.inspect}.
+          \tStatus: #{status}
+          \tOutput: #{output.inspect}
+          \tError: #{error.inspect}
+          COMMAND_LOG
+      end
+    end
+
     class RunError < StandardError; end
+
+    include Singleton
 
     # Runs a system command
     # @param [String] command the command string (with args, flags and switches) to run
     # @param [Hash] options the options to run the command with
     # @option options [Boolean] :silent Supress the output of the command
+    # @option options [Boolean] :blocking Supress errors running the command
     # @option options [Boolean] :with_system Execute command in a subshell using `system`
-    def run(command, options = {})
-      options = DEFAULT_RUN_OPTIONS.merge(options)
+    def self.run(command_with_arguments, options = {})
+      command = Command.new(command_with_arguments, options)
 
-      GitReflow.logger.debug "[system] Running #{command} with options #{options.inspect} ..."
+      return system(command_with_arguments) if options[:with_system] == true
 
-      return system(command) if options[:with_system] == true
+      command.run
 
-      # Disable CommandLiteral rubocop in this case since we want to allow
-      # backticks in the command string
-      output = %x(#{command}) # rubocop:disable Style/CommandLiteral
+      if !command.status.success?
+        raise RunError, "\"#{command.error}\" \"#{command.name}\" failed to run." unless command.options[:blocking] == false
+      end
 
-      raise RunError.new(output, "\"#{command}\" failed to run.") unless $CHILD_STATUS.success?
-
-      puts output if options[:silent] == false
-      output
+      puts command.output if command.options[:silent] == false
+      command.output
     end
   end
 end
