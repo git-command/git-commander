@@ -11,10 +11,11 @@ module GitCommander
       attr_reader :default, :description, :name
       attr_writer :value
 
-      def initialize(name:, default: nil, description: nil)
+      def initialize(name:, default: nil, description: nil, value: nil)
         @name = name.to_sym
         @default = default
         @description = description
+        @value = value
       end
 
       def value
@@ -28,6 +29,10 @@ module GitCommander
           other.description == description
       end
       alias eql? ==
+
+      def to_h
+        { name => value }
+      end
     end
 
     def initialize(name, registry: nil, **options, &block)
@@ -43,7 +48,8 @@ module GitCommander
 
     def run(run_options = [])
       GitCommander.logger.info "Running '#{name}' with arguments: #{@options.inspect}"
-      instance_exec(run_options, &@block)
+      assign_option_values(run_options)
+      instance_exec(options.map(&:to_h).reduce(:merge), &@block)
     end
 
     def say(message)
@@ -71,6 +77,15 @@ module GitCommander
 
     def options_from_hash(hash)
       Array(hash).map { |v| Option.new(**v) }
+    end
+
+    def assign_option_values(command_options)
+      @options.each do |option|
+        command_option = command_options.find { |o| o.name == option.name }
+        next if command_option.nil?
+
+        option.value = command_option.value
+      end
     end
 
     def description_help

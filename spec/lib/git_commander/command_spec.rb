@@ -3,8 +3,9 @@
 require "spec_helper"
 
 describe GitCommander::Command do
+  let(:output) { spy("output") }
+
   it "runs the block registered to it" do
-    output = spy("output")
     command = described_class.new(:wtf, output: output) do
       say "I'm on a boat!"
     end
@@ -13,19 +14,30 @@ describe GitCommander::Command do
   end
 
   it "runs the block registered to it passing arguments" do
-    output = spy("output")
-    command = described_class.new(:wtf, output: output) do |vehicle:|
+    command = described_class.new(:wtf, output: output, arguments: [{ name: :vehicle }]) do |vehicle:|
       say "I'm on a #{vehicle}!"
     end
-    command.run vehicle: "T-Rex"
+    command.run [GitCommander::Command::Option.new(name: :vehicle, value: "T-Rex")]
     expect(output).to have_received(:puts).with "I'm on a T-Rex!"
   end
-  it "runs the block registered to it passing options"
+
+  it "runs the block registered to it passing options" do
+    command = described_class.new(
+      :wtf,
+      output: output,
+      flags: [{ name: :make, default: "Lotus" }],
+      switches: [{ name: :model }]
+    ) do |params|
+      say "I'm on a #{[params[:make], params[:model]].compact.join(" ")}!"
+    end
+    command.run [GitCommander::Command::Option.new(name: :model, value: "Evora")]
+    expect(output).to have_received(:puts).with "I'm on a Lotus Evora!"
+  end
+
   it "runs the block registered to it passing arguments and options"
   it "runs the block registered to it passing options with defaults"
 
   it "can add output" do
-    output = spy("output")
     command = described_class.new(:wtf, output: output)
     command.say "Ooh eeh what's up with that"
     expect(output).to have_received(:puts).with "Ooh eeh what's up with that"
@@ -34,7 +46,6 @@ describe GitCommander::Command do
   it "raises an error if no arguments, flags, or switches exist for the params passed"
 
   it "can output a help message" do
-    output = spy("output")
     full_command = described_class.new(
       :start,
       arguments: [
