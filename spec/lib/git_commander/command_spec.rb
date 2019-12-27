@@ -3,17 +3,35 @@
 require "spec_helper"
 
 describe GitCommander::Command do
-  it "runs the block registered to it"
-  it "runs the block registered to it passing arguments"
+  it "runs the block registered to it" do
+    output = spy("output")
+    command = described_class.new(:wtf, output: output) do
+      say "I'm on a boat!"
+    end
+    command.run
+    expect(output).to have_received(:puts).with "I'm on a boat!"
+  end
+
+  it "runs the block registered to it passing arguments" do
+    output = spy("output")
+    command = described_class.new(:wtf, output: output) do |vehicle:|
+      say "I'm on a #{vehicle}!"
+    end
+    command.run vehicle: "T-Rex"
+    expect(output).to have_received(:puts).with "I'm on a T-Rex!"
+  end
   it "runs the block registered to it passing options"
   it "runs the block registered to it passing arguments and options"
   it "runs the block registered to it passing options with defaults"
+
   it "can add output" do
     output = spy("output")
     command = described_class.new(:wtf, output: output)
     command.say "Ooh eeh what's up with that"
     expect(output).to have_received(:puts).with "Ooh eeh what's up with that"
   end
+
+  it "raises an error if no arguments, flags, or switches exist for the params passed"
 
   it "can output a help message" do
     output = spy("output")

@@ -45,8 +45,11 @@ describe GitCommander::CLI do
     target_command = "wtf"
     arguments = ["What's up with that?", "And this?"]
     command = GitCommander::Command.new :zombie, arguments: [{ name: :this }, { name: :that }], output: output
+    expected_comand_options = command.options.dup
+    expected_comand_options.find { |o| o.name == :this }.value = arguments.first
+    expected_comand_options.find { |o| o.name == :that }.value = arguments.last
     expect(registry).to receive(:find).with(target_command).and_return(command)
-    expect(command).to receive(:run).with(this: arguments.first, that: arguments.last)
+    expect(command).to receive(:run).with(expected_comand_options)
     expect(cli).to_not receive(:help)
 
     cli.run [target_command, *arguments]
@@ -58,8 +61,10 @@ describe GitCommander::CLI do
       flags: [{ name: :question, default: "What's up with that?" }],
       output: output
     )
+    expected_comand_options = command.options.dup
+    expected_comand_options.find { |o| o.name == :question }.value = "Yo dawg, zombies?"
     expect(registry).to receive(:find).with("zombie").and_return(command)
-    expect(command).to receive(:run).with(question: "Yo dawg, zombies?")
+    expect(command).to receive(:run).with(expected_comand_options)
     expect(cli).to_not receive(:help)
 
     cli.run ["zombie", "--question", "Yo dawg, zombies?"]
@@ -71,8 +76,9 @@ describe GitCommander::CLI do
       flags: [{ name: :question, default: "What's up with that?" }],
       output: output
     )
+    expected_comand_options = command.options.dup
     expect(registry).to receive(:find).with("zombie").and_return(command)
-    expect(command).to receive(:run).with(question: "What's up with that?")
+    expect(command).to receive(:run).with(expected_comand_options)
     expect(cli).to_not receive(:help)
 
     cli.run ["zombie"]
@@ -87,13 +93,13 @@ describe GitCommander::CLI do
       switches: [{ name: :auto_answer, default: false }],
       output: output
     )
+    expected_comand_options = command.options.dup
+    expected_comand_options.find { |o| o.name == :this }.value = arguments.first
+    expected_comand_options.find { |o| o.name == :that }.value = arguments.last
+    expected_comand_options.find { |o| o.name == :question }.value = "Yo dawg, zombies?"
+    expected_comand_options.find { |o| o.name == :auto_answer }.value = true
     expect(registry).to receive(:find).with("zombie").and_return(command)
-    expect(command).to receive(:run).with(
-      this: arguments.first,
-      that: arguments.last,
-      question: "Yo dawg, zombies?",
-      auto_answer: true
-    )
+    expect(command).to receive(:run).with(expected_comand_options)
     expect(cli).to_not receive(:help)
 
     cli.run ["zombie", "-q", "Yo dawg, zombies?", "--auto-answer", *arguments]

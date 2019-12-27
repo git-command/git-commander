@@ -3,16 +3,22 @@
 module GitCommander
   # @abstract Wraps domain logic for executing git-cmd commands
   class Command
-    attr_reader :arguments, :block, :description, :flags, :name, :summary, :switches
+    attr_reader :arguments, :block, :description, :flags, :name, :options, :summary, :switches
     attr_accessor :output
 
     # @nodoc
     class Option
       attr_reader :default, :description, :name
+      attr_writer :value
+
       def initialize(name:, default: nil, description: nil)
         @name = name.to_sym
         @default = default
         @description = description
+      end
+
+      def value
+        @value || @default
       end
 
       def ==(other)
@@ -24,19 +30,20 @@ module GitCommander
       alias eql? ==
     end
 
-    def initialize(name, registry: nil, **options)
+    def initialize(name, registry: nil, **options, &block)
       @name = name
       @description = options[:description]
       @summary = options[:summary]
-      @block = options[:block] || proc {}
+      @block = block_given? ? block : proc {}
       @registry = registry || GitCommander::Registry.new
       @output = options[:output] || STDOUT
 
-      parse_options(options)
+      define_command_options(options)
     end
 
-    def run(args = [])
-      GitCommander.logger.info "Running '#{name}' with arguments: #{args.inspect}"
+    def run(run_options = [])
+      GitCommander.logger.info "Running '#{name}' with arguments: #{@options.inspect}"
+      instance_exec(run_options, &@block)
     end
 
     def say(message)
@@ -55,10 +62,15 @@ module GitCommander
 
     private
 
-    def parse_options(options)
-      @arguments = Array(options[:arguments]).map { |a| Option.new(**a) }
-      @flags = Array(options[:flags]).map { |f| Option.new(**f) }
-      @switches = Array(options[:switches]).map { |s| Option.new(**s) }
+    def define_command_options(options)
+      @arguments = options_from_hash(options[:arguments])
+      @flags = options_from_hash(options[:flags])
+      @switches = options_from_hash(options[:switches])
+      @options = Set.new(@arguments + @flags + @switches)
+    end
+
+    def options_from_hash(hash)
+      Array(hash).map { |v| Option.new(**v) }
     end
 
     def description_help

@@ -44,8 +44,8 @@ module GitCommander
     #
     # @param command [Command] the git-cmd command to parse the arguments for
     # @param arguments [Array] the command line arguments
+    # @return options [Array] the GitCommander::Command options with values
     def parse_command_options!(command, arguments)
-      options = {}
       valid_arguments_for_command = command.arguments.map { |arg| "[#{arg.name}]" }.join(" ")
 
       parser = OptionParser.new do |opts|
@@ -54,14 +54,14 @@ module GitCommander
         opts.separator  "COMMAND OPTIONS:" if command.flags.any? || command.switches.any?
 
         command.flags.each do |flag|
-          opts.on("-#{flag.name[0]}", "--#{underscore_to_kebab(flag.name)} #{flag.name.upcase}", flag.description.to_s) do |f|
-            options[flag.name] = f || flag.default
+          opts.on("-#{flag.name[0]}", command_line_flag_formatted_name(flag), flag.description.to_s) do |f|
+            flag.value = f
           end
         end
 
         command.switches.each do |switch|
           opts.on("-#{switch.name[0]}", "--[no-]#{switch.name}", switch.description) do |s|
-            options[switch.name] = s || switch.default
+            switch.value = s
           end
         end
       end
@@ -69,14 +69,10 @@ module GitCommander
 
       # Add arguments to options to pass to defined commands
       command.arguments.each do |argument|
-        options[argument.name] = arguments.shift || argument.default
-      end
-      # Add any defaults
-      (command.flags + command.switches).each do |option|
-        options[option.name] ||= option.default
+        argument.value = arguments.shift
       end
 
-      options
+      command.options
     rescue OptionParser::InvalidOption, OptionParser::MissingArgument => e
       command.help
       GitCommander.logger.debug "[CLI] Failed to parse command line options – #{e.inspect}"
@@ -84,6 +80,10 @@ module GitCommander
     end
 
     private
+
+    def command_line_flag_formatted_name(flag)
+      "--#{underscore_to_kebab(flag.name)} #{flag.name.upcase}"
+    end
 
     def underscore_to_kebab(sym_or_string)
       sym_or_string.to_s.gsub("_", "-").to_sym
