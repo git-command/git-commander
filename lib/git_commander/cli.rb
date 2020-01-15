@@ -26,7 +26,10 @@ module GitCommander
       options = parse_command_options!(command, arguments)
       command.run options
     rescue Registry::CommandNotFound
-      GitCommander.logger.error "#{command} not found in registry.  Available commands: #{registry.commands.keys.inspect}"
+      GitCommander.logger.error <<~ERROR_LOG
+        #{command} not found in registry.  Available commands: #{registry.commands.keys.inspect}
+      ERROR_LOG
+
       help
     end
 
