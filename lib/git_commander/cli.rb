@@ -9,12 +9,17 @@ module GitCommander
   class CLI
     attr_reader :output, :registry
 
+    # @param registry [GitCommander::Registry] (GitCommander::Registry.new) the
+    # command registry to use for matching available commands
+    # @param output [IO] (STDOUT) the IO object you want to use to send output to when running commands
     def initialize(registry: GitCommander::Registry.new, output: STDOUT)
       @registry = registry
       @output = output
     end
 
     # Runs a GitCommander command
+    #
+    # @param args [Array] (ARGV) a list of arguments to pass to the registered command
     def run(args = ARGV)
       arguments = Array(args)
       command = registry.find arguments.shift
