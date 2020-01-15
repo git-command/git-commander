@@ -30,17 +30,6 @@ module GitCommander
       help
     end
 
-    def help
-      say "NAME"
-      say "    git-cmd – Git Commander allows running custom git commands from a centralized location."
-      say "VERSION"
-      say "    #{GitCommander::VERSION}"
-      say "USAGE"
-      say "    git-cmd command [command options] [arguments...]"
-      say "COMMANDS"
-      say registry.commands.keys.join(", ")
-    end
-
     def say(message)
       output.puts message
     end
@@ -51,25 +40,7 @@ module GitCommander
     # @param arguments [Array] the command line arguments
     # @return options [Array] the GitCommander::Command options with values
     def parse_command_options!(command, arguments)
-      valid_arguments_for_command = command.arguments.map { |arg| "[#{arg.name}]" }.join(" ")
-
-      parser = OptionParser.new do |opts|
-        opts.banner = "USAGE:\n    git-cmd #{command.name} [command options] #{valid_arguments_for_command}"
-        opts.separator  ""
-        opts.separator  "COMMAND OPTIONS:" if command.flags.any? || command.switches.any?
-
-        command.flags.each do |flag|
-          opts.on("-#{flag.name[0]}", command_line_flag_formatted_name(flag), flag.description.to_s) do |f|
-            flag.value = f
-          end
-        end
-
-        command.switches.each do |switch|
-          opts.on("-#{switch.name[0]}", "--[no-]#{switch.name}", switch.description) do |s|
-            switch.value = s
-          end
-        end
-      end
+      parser = configure_option_parser_for_command(command)
       parser.parse!(arguments)
 
       # Add arguments to options to pass to defined commands
@@ -85,6 +56,46 @@ module GitCommander
     end
 
     private
+
+    def help
+      say "NAME"
+      say "    git-cmd – Git Commander allows running custom git commands from a centralized location."
+      say "VERSION"
+      say "    #{GitCommander::VERSION}"
+      say "USAGE"
+      say "    git-cmd command [command options] [arguments...]"
+      say "COMMANDS"
+      say registry.commands.keys.join(", ")
+    end
+
+    def configure_option_parser_for_command(command)
+      valid_arguments_for_command = command.arguments.map { |arg| "[#{arg.name}]" }.join(" ")
+
+      OptionParser.new do |opts|
+        opts.banner = "USAGE:\n    git-cmd #{command.name} [command options] #{valid_arguments_for_command}"
+        opts.separator  ""
+        opts.separator  "COMMAND OPTIONS:" if command.flags.any? || command.switches.any?
+
+        configure_flags_for_option_parser_and_command(opts, command)
+        configure_switches_for_option_parser_and_command(opts, command)
+      end
+    end
+
+    def configure_flags_for_option_parser_and_command(option_parser, command)
+      command.flags.each do |flag|
+        option_parser.on("-#{flag.name[0]}", command_line_flag_formatted_name(flag), flag.description.to_s) do |f|
+          flag.value = f
+        end
+      end
+    end
+
+    def configure_switches_for_option_parser_and_command(option_parser, command)
+      command.switches.each do |switch|
+        option_parser.on("-#{switch.name[0]}", "--[no-]#{switch.name}", switch.description) do |s|
+          switch.value = s
+        end
+      end
+    end
 
     def command_line_flag_formatted_name(flag)
       "--#{underscore_to_kebab(flag.name)} #{flag.name.upcase}"
