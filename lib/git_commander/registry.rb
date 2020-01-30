@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
+require_relative "loaders/base_loader"
+require_relative "loaders/result"
+
 module GitCommander
   # @abstract Manages available GitCommander commands
   class Registry
     class CommandNotFound < StandardError; end
+    class LoadError < StandardError; end
 
     attr_accessor :commands, :name
 
@@ -20,6 +24,13 @@ module GitCommander
 
       GitCommander.logger.debug "[#{logger_tag}] Registering command `#{command_name}` with args: #{options.inspect}..."
       commands[command_name] = GitCommander::Command.new(command_name, registry: self, **options.merge(block: block))
+    end
+
+    # Adds command(s) to the registry using the given loader
+    #
+    # @param [CommandLoader] loader the class to use to load with
+    def load(loader, options = {})
+      loader.new(options).load
     end
 
     # Looks up a command in the registry
