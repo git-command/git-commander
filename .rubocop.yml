@@ -1,3 +1,6 @@
+Layout/DotPosition:
+  EnforcedStyle: trailing
+
 Metrics/LineLength:
   Max: 120
 
