@@ -90,4 +90,17 @@ describe GitCommander::Registry do
   it "raises an error when trying to find a command that is not registered" do
     expect { registry.find(:wtf) }.to raise_error GitCommander::Registry::CommandNotFound
   end
+
+  describe "#load(loader, options = {})" do
+    it "uses the provided loader to load the given options" do
+      options = { content: "command :hello do |cmd|; cmd.on_run { say 'hello' }; end" }
+      loader_class_spy = spy("loader class")
+      loader_instance_spy = spy("loader instance")
+
+      expect(loader_class_spy).to receive(:new).with(options).and_return(loader_instance_spy)
+      expect(loader_instance_spy).to receive(:load)
+
+      registry.load(loader_class_spy, options)
+    end
+  end
 end
