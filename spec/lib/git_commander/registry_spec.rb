@@ -70,6 +70,12 @@ describe GitCommander::Registry do
     expect(wtf_command.description).to eq("WTF is up with x")
   end
 
+  it "allows registering pre-built commands" do
+    command = GitCommander::Command.new(:wtf)
+    registry.register_command command
+    expect(registry.commands[:wtf]).to eq(command)
+  end
+
   it "allows re-registering existing commands" do
     registry.register(:wtf, arguments: [{ name: :day, default: :today }])
     wtf_command = registry.commands[:wtf]
@@ -97,8 +103,8 @@ describe GitCommander::Registry do
       loader_class_spy = spy("loader class")
       loader_instance_spy = spy("loader instance")
 
-      expect(loader_class_spy).to receive(:new).with(options).and_return(loader_instance_spy)
-      expect(loader_instance_spy).to receive(:load)
+      expect(loader_class_spy).to receive(:new).with(registry).and_return(loader_instance_spy)
+      expect(loader_instance_spy).to receive(:load).with(options)
 
       registry.load(loader_class_spy, options)
     end
