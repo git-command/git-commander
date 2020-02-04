@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "loaders/base_loader"
+require_relative "loaders/raw"
 require_relative "loaders/result"
 
 module GitCommander
@@ -26,11 +27,19 @@ module GitCommander
       commands[command_name] = GitCommander::Command.new(command_name, registry: self, **options.merge(block: block))
     end
 
+    # Adds a pre-built command to the registry
+    # @param [Command] command the Command instance to add to the registry
+    def register_command(command)
+      GitCommander.logger.debug "[#{logger_tag}] Registering command `#{command.name}` with args: #{command.inspect}..."
+
+      commands[command.name] = command
+    end
+
     # Adds command(s) to the registry using the given loader
     #
     # @param [CommandLoader] loader the class to use to load with
-    def load(loader, options = {})
-      loader.new(options).load
+    def load(loader, *args)
+      loader.new(self).load(*args)
     end
 
     # Looks up a command in the registry
