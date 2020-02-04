@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "base_loader"
+
 module GitCommander
   module Loaders
     # @abstract Handles loading commands from raw strings
