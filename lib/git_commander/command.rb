@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
+require_relative "command_loader_options"
+
 module GitCommander
   # @abstract Wraps domain logic for executing git-cmd commands
   class Command
-    attr_reader :arguments, :block, :description, :flags, :name, :options, :summary, :switches
+    include GitCommander::CommandLoaderOptions
+
+    attr_reader :arguments, :flags, :switches, :block, :name
     attr_accessor :output
 
     # @nodoc
@@ -35,6 +39,22 @@ module GitCommander
       end
     end
 
+    # @param name [String, Symbol] the name of the command
+    # @param registry [GitCommander::Registry] (GitCommander::Registry.new) the
+    # command registry to use lookups
+    # @param options [Hash] the options to create the command with
+    # @option options [String] :description (nil) a short description to use in the
+    # single line version of the command's help output
+    # @option options [String] :summary (nil) the long-form description of the command
+    # to use in the command's help output
+    # @option options [IO] :output (STDOUT) the IO object you want to use to
+    # send outut from the command to
+    # @option options [Array] :arguments an array of hashes describing the
+    # argument names and default values that can be supplied to the command
+    # @option options [Array] :flags an array of hashes describing the
+    # flags and default values that can be supplied to the command
+    # @option options [Array] :switches an array of hashes describing the
+    # switches and default values that can be supplied to the command
     def initialize(name, registry: nil, **options, &block)
       @name = name
       @description = options[:description]
@@ -46,8 +66,11 @@ module GitCommander
       define_command_options(options)
     end
 
+    # Executes the block for the command with the provided run_options.
+    #
+    # @param run_options
     def run(run_options = [])
-      GitCommander.logger.info "Running '#{name}' with arguments: #{@options.inspect}"
+      GitCommander.logger.info "Running '#{name}' with arguments: #{options.inspect}"
       assign_option_values(run_options)
       instance_exec(options.map(&:to_h).reduce(:merge), &@block)
     end
@@ -66,13 +89,27 @@ module GitCommander
       options_help
     end
 
+    def options
+      Set.new(@arguments + @flags + @switches)
+    end
+
+    def add_option(option_type, options = {})
+      case option_type.to_sym
+      when :argument
+        @arguments << Option.new(**options)
+      when :flag
+        @flags << Option.new(**options)
+      when :switch
+        @switches << Option.new(**options)
+      end
+    end
+
     private
 
     def define_command_options(options)
       @arguments = options_from_hash(options[:arguments])
       @flags = options_from_hash(options[:flags])
       @switches = options_from_hash(options[:switches])
-      @options = Set.new(@arguments + @flags + @switches)
     end
 
     def options_from_hash(hash)
@@ -80,7 +117,7 @@ module GitCommander
     end
 
     def assign_option_values(command_options)
-      @options.each do |option|
+      options.each do |option|
         command_option = command_options.find { |o| o.name == option.name }
         next if command_option.nil?
 
