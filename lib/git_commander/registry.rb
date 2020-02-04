@@ -39,7 +39,10 @@ module GitCommander
     #
     # @param [CommandLoader] loader the class to use to load with
     def load(loader, *args)
-      loader.new(self).load(*args)
+      result = loader.new(self).load(*args)
+      result.commands.each { |cmd| register_command(cmd) } if result.success?
+
+      result
     end
 
     # Looks up a command in the registry
