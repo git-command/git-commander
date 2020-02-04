@@ -31,11 +31,11 @@ RSpec.describe GitCommander::Loaders::Raw do
         end
       COMMANDS
 
-      expect { registry.find(:hello) }.to raise_error GitCommander::Registry::CommandNotFound
+      expect(loader.result.commands).to be_empty
 
       loader.load(raw_command_string)
 
-      registered_command = registry.find(:hello)
+      registered_command = loader.result.commands.first
       expect(registered_command.summary).to eq "Outputs a greeting."
       expect(registered_command.description).to eq "This is way too much information about a simple greeting."
       expect(registered_command.arguments.size).to eq 2
@@ -60,7 +60,36 @@ RSpec.describe GitCommander::Loaders::Raw do
       expect(output).to have_received(:puts).with "SALUTATIONS."
     end
 
-    it "rescues syntax errors and reports them in the Result"
-    it "rescues errors from improperly defined commands and reports them in the Result"
+    it "rescues syntax errors and reports them in the Result" do
+      raw_command_string = <<~COMMANDS
+        command :hello d |cmd = nil|
+          cmd.danger!
+        end
+      COMMANDS
+
+      result = loader.load(raw_command_string)
+      expect(result).to_not be_success
+
+      resulting_error = result.errors.first
+      expect(resulting_error).to be_kind_of described_class::CommandParseError
+      expect(resulting_error.message).to include "syntax error"
+      expect(resulting_error.backtrace).to_not be_empty
+    end
+
+    it "rescues errors from improperly defined commands and reports them in the Result" do
+      raw_command_string = <<~COMMANDS
+        command :hello do |cmd = nil|
+          cmd.danger!
+        end
+      COMMANDS
+
+      result = loader.load(raw_command_string)
+      expect(result).to_not be_success
+
+      resulting_error = result.errors.first
+      expect(resulting_error).to be_kind_of described_class::CommandConfigurationError
+      expect(resulting_error.message).to include "undefined method \`danger!"
+      expect(resulting_error.backtrace).to_not be_empty
+    end
   end
 end
