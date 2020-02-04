@@ -29,11 +29,16 @@ RSpec.describe GitCommander::Loaders::Raw do
             say response
           end
         end
+
+        command :love do
+        end
       COMMANDS
 
       expect(loader.result.commands).to be_empty
 
       loader.load(raw_command_string)
+
+      expect(loader.result.commands.size).to eq 2
 
       registered_command = loader.result.commands.first
       expect(registered_command.summary).to eq "Outputs a greeting."
