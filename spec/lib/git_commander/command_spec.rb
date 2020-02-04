@@ -125,4 +125,28 @@ describe GitCommander::Command do
     expect(output).to have_received(:puts).with("COMMAND OPTIONS")
     expect(output).to have_received(:puts).with("    [\"-b\", \"--base\"] – name of a branch you want to branch off of")
   end
+
+  it "allows adding an argument" do
+    command = described_class.new :hello, arguments: [{ name: :name }]
+    command.add_option :argument, name: :greeting, default: "Heya!"
+    expect(command.arguments.size).to eq 2
+    expect(command.arguments.last.name).to eq :greeting
+    expect(command.arguments.last.default).to eq "Heya!"
+  end
+
+  it "allows adding a flag" do
+    command = described_class.new :hello, flags: [{ name: :name }]
+    command.add_option :flag, name: :greeting, default: "Heya!"
+    expect(command.flags.size).to eq 2
+    expect(command.flags.last.name).to eq :greeting
+    expect(command.flags.last.default).to eq "Heya!"
+  end
+
+  it "allows adding a switch" do
+    command = described_class.new :hello, switches: [{ name: :name }]
+    command.add_option :switch, name: :greeting, default: "Heya!"
+    expect(command.switches.size).to eq 2
+    expect(command.switches.last.name).to eq :greeting
+    expect(command.switches.last.default).to eq "Heya!"
+  end
 end
