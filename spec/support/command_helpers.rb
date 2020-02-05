@@ -7,6 +7,18 @@ require "open3"
 module CommandHelpers
   Command = Struct.new(:exit_status, :output, :error)
 
+  def fixtures_dir
+    File.expand_path "#{Dir.pwd}/spec/fixtures"
+  end
+
+  def home_dir
+    @home_dir ||= expand_path("home")
+  end
+
+  def project_dir
+    @project_dir ||= "#{home_dir}/project"
+  end
+
   def git_cmd_path
     File.expand_path File.join("exe", "git-cmd")
   end
@@ -56,28 +68,19 @@ module CommandHelpers
 
   def run_system_call(command_string)
     last_command.output, last_command.error, last_command.exit_status = run_in_test_context do
-      arguments = command_string.split(" ").reject { |a| a.empty? }
+      arguments = command_string.split(" ").reject(&:empty?)
       command = arguments.shift
       Open3.capture3(command, *arguments)
     end
   end
 
-  def run_in_test_context(&block)
+  def run_in_test_context(&_block)
     Dir.chdir project_dir do
       yield
     end
   end
 
-
   private
-
-  def home_dir
-    expand_path "home"
-  end
-
-  def project_dir
-    "#{home_dir}/project"
-  end
 
   def expand_path(path)
     File.expand_path File.join("tmp", path)
