@@ -8,4 +8,17 @@ require "git_commander"
 require "git_commander/cli"
 
 runner = GitCommander::CLI.new
+
+command_files = Dir[
+  File.join(Dir.pwd, "Workflow"),
+  File.join(Dir.pwd, ".git-commands", "*")
+]
+
+command_files.each do |filename|
+  loader = runner.registry.load GitCommander::Loaders::FileLoader, filename if File.exist?(filename)
+  unless loader.success?
+    GitCommander.logger.warn "Unable to load command from: #{filename}\n\tErrors: #{loader.errors.inspect}"
+  end
+end
+
 runner.run
