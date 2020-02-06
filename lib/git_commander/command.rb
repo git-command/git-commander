@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "command/option"
+require_relative "command/runner"
 require_relative "command_loader_options"
 
 module GitCommander
@@ -42,9 +43,8 @@ module GitCommander
     #
     # @param run_options
     def run(run_options = [])
-      GitCommander.logger.info "Running '#{name}' with arguments: #{options.inspect}"
       assign_option_values(run_options)
-      instance_exec(options.map(&:to_h).reduce(:merge), &@block)
+      Runner.new(self).run options.map(&:to_h).reduce(:merge)
     end
 
     def say(message)
