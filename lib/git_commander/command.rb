@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "command/option"
 require_relative "command_loader_options"
 
 module GitCommander
@@ -9,35 +10,6 @@ module GitCommander
 
     attr_reader :arguments, :flags, :switches, :block, :name
     attr_accessor :output
-
-    # @nodoc
-    class Option
-      attr_reader :default, :description, :name
-      attr_writer :value
-
-      def initialize(name:, default: nil, description: nil, value: nil)
-        @name = name.to_sym
-        @default = default
-        @description = description
-        @value = value
-      end
-
-      def value
-        @value || @default
-      end
-
-      def ==(other)
-        other.class == self.class &&
-          other.name == name &&
-          other.default == default &&
-          other.description == description
-      end
-      alias eql? ==
-
-      def to_h
-        { name => value }
-      end
-    end
 
     # @param name [String, Symbol] the name of the command
     # @param registry [GitCommander::Registry] (GitCommander::Registry.new) the
