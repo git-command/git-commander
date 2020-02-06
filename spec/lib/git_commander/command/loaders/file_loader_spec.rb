@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe GitCommander::Loaders::FileLoader do
+RSpec.describe GitCommander::Command::Loaders::FileLoader do
   let(:registry) { GitCommander::Registry.new }
   let(:loader) { described_class.new(registry) }
 
@@ -85,7 +85,7 @@ RSpec.describe GitCommander::Loaders::FileLoader do
       expect(result).to_not be_success
 
       resulting_error = result.errors.first
-      expect(resulting_error).to be_kind_of GitCommander::Loaders::Raw::CommandParseError
+      expect(resulting_error).to be_kind_of GitCommander::Command::Loaders::Raw::CommandParseError
       expect(resulting_error.message).to include "syntax error"
       expect(resulting_error.backtrace).to_not be_empty
     end

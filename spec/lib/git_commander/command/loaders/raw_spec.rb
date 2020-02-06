@@ -2,13 +2,13 @@
 
 require "spec_helper"
 
-RSpec.describe GitCommander::Loaders::Raw do
+RSpec.describe GitCommander::Command::Loaders::Raw do
   let(:registry) { GitCommander::Registry.new }
   let(:loader) { described_class.new(registry) }
 
   describe "#load" do
     it "returns a Result" do
-      expect(loader.load).to be_a GitCommander::Loaders::Result
+      expect(loader.load).to be_a GitCommander::Command::Loaders::Result
     end
 
     it "registers commands defined in the provided string with the registry" do
