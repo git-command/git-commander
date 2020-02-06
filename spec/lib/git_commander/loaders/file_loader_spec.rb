@@ -13,6 +13,10 @@ RSpec.describe GitCommander::Loaders::FileLoader do
       expect(loader.result).to be_success
       expect(loader.result.commands.size).to eq 2
 
+      loader.result.commands.each do |command|
+        expect(command.registry).to eq registry
+      end
+
       expect(loader.result.commands.first.name).to eq :hello
 
       registered_command = loader.result.commands.last

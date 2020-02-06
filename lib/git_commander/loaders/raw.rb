@@ -26,7 +26,7 @@ module GitCommander
       end
 
       def command(name, &block)
-        new_command = GitCommander::Command.new(name)
+        new_command = GitCommander::Command.new(name, registry: registry)
         new_command.instance_exec new_command, &block
         result.commands << new_command
       rescue StandardError => e
