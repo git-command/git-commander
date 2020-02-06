@@ -8,7 +8,7 @@ RSpec.describe GitCommander::Command::Loaders::Raw do
 
   describe "#load" do
     it "returns a Result" do
-      expect(loader.load).to be_a GitCommander::Command::Loaders::Result
+      expect(loader.load).to be_a GitCommander::LoaderResult
     end
 
     it "registers commands defined in the provided string with the registry" do
@@ -69,7 +69,7 @@ RSpec.describe GitCommander::Command::Loaders::Raw do
       expect(output).to have_received(:puts).with "SALUTATIONS."
     end
 
-    it "rescues syntax errors and reports them in the Result" do
+    it "rescues syntax errors and reports them in the LoaderResult" do
       raw_command_string = <<~COMMANDS
         command :hello d |cmd = nil|
           cmd.danger!
@@ -85,7 +85,7 @@ RSpec.describe GitCommander::Command::Loaders::Raw do
       expect(resulting_error.backtrace).to_not be_empty
     end
 
-    it "rescues errors from improperly defined commands and reports them in the Result" do
+    it "rescues errors from improperly defined commands and reports them in the LoaderResult" do
       raw_command_string = <<~COMMANDS
         command :hello do |cmd = nil|
           cmd.danger!

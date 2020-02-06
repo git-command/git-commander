@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe GitCommander::Command::Loaders::Result do
+RSpec.describe GitCommander::LoaderResult do
   describe "#success?" do
     it "returns true if no errors are presesnt" do
       result = described_class.new
