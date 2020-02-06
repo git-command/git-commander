@@ -12,6 +12,12 @@ RSpec.describe "Run command with arguments" do
   end
 
   describe "command help" do
+    before do
+      # Ensure we don't have lingering commands in our test project
+      FileUtils.rm_rf "#{project_dir}/Workflow"
+      FileUtils.rm_rf "#{project_dir}/.git-commands"
+    end
+
     it "displays help text for commands registered in Workflow file" do
       FileUtils.cp "#{fixtures_dir}/workflow_example.rb", "#{project_dir}/Workflow"
 
@@ -30,10 +36,11 @@ RSpec.describe "Run command with arguments" do
     it "displays help text for commands registered in .git-commands directory" do
       FileUtils.mkdir "#{project_dir}/.git-commands"
       FileUtils.cp "#{fixtures_dir}/faq_command.rb", "#{project_dir}/.git-commands/faq.rb"
+      FileUtils.cp "#{fixtures_dir}/hello_command.rb", "#{project_dir}/.git-commands/hello.rb"
 
       run_system_call "#{git_cmd_path} help"
       expect(last_command.output).
-        to include("hello, faq")
+        to include("faq, hello")
 
       run_system_call "#{git_cmd_path} faq --help"
       expect(last_command.output).
