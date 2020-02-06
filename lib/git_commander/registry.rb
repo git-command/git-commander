@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require_relative "loaders/base_loader"
-require_relative "loaders/file_loader"
-require_relative "loaders/raw"
+require_relative "command/loaders/base"
+require_relative "command/loaders/file_loader"
+require_relative "command/loaders/raw"
 
 module GitCommander
   # @abstract Manages available GitCommander commands

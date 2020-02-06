@@ -15,7 +15,7 @@ command_files = Dir[
 ]
 
 command_files.each do |filename|
-  loader = runner.registry.load GitCommander::Loaders::FileLoader, filename if File.exist?(filename)
+  loader = runner.registry.load GitCommander::Command::Loaders::FileLoader, filename if File.exist?(filename)
   unless loader.success?
     GitCommander.logger.warn "Unable to load command from: #{filename}\n\tErrors: #{loader.errors.inspect}"
   end
