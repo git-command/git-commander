@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-require_relative "base"
+require_relative "../../loader"
 
 module GitCommander
   class Command
     module Loaders
       # @abstract Handles loading commands from file
-      class FileLoader < Base
+      class FileLoader < ::GitCommander::Loader
         class FileNotFoundError < StandardError; end
         class FileLoadError < StandardError; end
 

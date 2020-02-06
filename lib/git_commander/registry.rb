@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "command/loaders/base"
+require_relative "loader"
 require_relative "command/loaders/file_loader"
 require_relative "command/loaders/raw"
 

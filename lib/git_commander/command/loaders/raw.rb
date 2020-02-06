@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-require_relative "base"
+require_relative "../../loader"
 
 module GitCommander
   class Command
     module Loaders
       # @abstract Handles loading commands from raw strings
-      class Raw < Base
+      class Raw < ::GitCommander::Loader
         class CommandParseError < StandardError; end
         class CommandConfigurationError < StandardError; end
 
