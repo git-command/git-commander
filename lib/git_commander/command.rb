@@ -9,7 +9,7 @@ module GitCommander
   class Command
     include GitCommander::CommandLoaderOptions
 
-    attr_reader :arguments, :flags, :switches, :block, :name
+    attr_reader :arguments, :flags, :switches, :block, :name, :registry
     attr_accessor :output
 
     # @param name [String, Symbol] the name of the command

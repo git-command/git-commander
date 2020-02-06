@@ -40,6 +40,10 @@ RSpec.describe GitCommander::Loaders::Raw do
 
       expect(loader.result.commands.size).to eq 2
 
+      loader.result.commands.each do |command|
+        expect(command.registry).to eq registry
+      end
+
       registered_command = loader.result.commands.first
       expect(registered_command.summary).to eq "Outputs a greeting."
       expect(registered_command.description).to eq "This is way too much information about a simple greeting."
