@@ -6,19 +6,19 @@ RSpec.describe GitCommander::Plugin::Loader do
   let(:registry) { GitCommander::Registry.new }
   let(:loader) { described_class.new(registry) }
 
-  describe ".load(name, path:, url:)" do
+  describe ".load(name)" do
     it "returns a Result" do
-      expect(loader.load(:git)).to be_a GitCommander::LoaderResult
+      expect(loader.load(:system)).to be_a GitCommander::LoaderResult
     end
 
     it "loads the plugins result with matching native plugin" do
-      result = loader.load(:git)
+      result = loader.load(:system)
 
       expect(result).to be_success
 
       plugin = result.plugins.first
-      expect(plugin.name).to eq :git
-      expect(plugin.executor).to respond_to(:branches)
+      expect(plugin.name).to eq :system
+      expect(plugin.executor).to respond_to(:run)
     end
 
     it "reports NotFound if the native plugin doesn't exist" do
@@ -39,7 +39,7 @@ RSpec.describe GitCommander::Plugin::Loader do
       expect(result).to_not be_success
 
       resulting_error = result.errors.first
-      expect(resulting_error).to be_kind_of described_class::NotFoundError
+      expect(resulting_error).to be_kind_of described_class::LoadError
       expect(resulting_error.message).to include "Permission denied"
       expect(resulting_error.backtrace).to_not be_empty
     end
