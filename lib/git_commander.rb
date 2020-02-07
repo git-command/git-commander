@@ -2,6 +2,7 @@
 
 require "git_commander/command"
 require "git_commander/logger"
+require "git_commander/plugin"
 require "git_commander/registry"
 require "git_commander/system"
 require "git_commander/version"
