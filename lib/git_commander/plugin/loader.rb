@@ -18,9 +18,10 @@ module GitCommander
         @content = File.read("#{NATIVE_PLUGIN_DIR}/#{name}.rb")
         result.plugins << GitCommander::Plugin.new(name.to_sym, source_instance: instance_eval(@content))
         result
-      rescue Errno::ENOENT => e
+      rescue Errno::ENOENT, Errno::EACCES => e
         handle_error LoadError, e
       rescue StandardError => e
+        p e
         handle_error NotFoundError, e
       end
 
