@@ -97,6 +97,12 @@ describe GitCommander::Registry do
     expect { registry.find(:wtf) }.to raise_error GitCommander::Registry::CommandNotFound
   end
 
+  it "allows registering pre-built plugins" do
+    plugin = GitCommander::Plugin.new(:wtf)
+    registry.register_plugin plugin
+    expect(registry.plugins[:wtf]).to eq(plugin)
+  end
+
   describe "#load(loader, options = {})" do
     it "uses the provided loader to load the given options" do
       options = { content: "command :hello do |cmd|; cmd.on_run { say 'hello' }; end" }
@@ -105,6 +111,38 @@ describe GitCommander::Registry do
 
       expect(loader_class_spy).to receive(:new).with(registry).and_return(loader_instance_spy)
       expect(loader_instance_spy).to receive(:load).with(options)
+
+      registry.load(loader_class_spy, options)
+    end
+
+    it "registers commands that are successfully loaded" do
+      options = { content: "command :hello do |cmd|; cmd.on_run { say 'hello' }; end" }
+      loader_class_spy = spy("loader class")
+      loader_instance_spy = spy("loader instance")
+      results = GitCommander::LoaderResult.new
+      results.commands = [GitCommander::Command.new(:hello)]
+
+      expect(loader_class_spy).to receive(:new).with(registry).and_return(loader_instance_spy)
+      expect(loader_instance_spy).to receive(:load).with(options).and_return(results)
+      results.commands.each do |cmd|
+        expect(registry).to receive(:register_command).with(cmd)
+      end
+
+      registry.load(loader_class_spy, options)
+    end
+
+    it "registers plugins that are successfully loaded" do
+      options = { content: "plugin :git;" }
+      loader_class_spy = spy("loader class")
+      loader_instance_spy = spy("loader instance")
+      results = GitCommander::LoaderResult.new
+      results.plugins = [GitCommander::Plugin.new(:git)]
+
+      expect(loader_class_spy).to receive(:new).with(registry).and_return(loader_instance_spy)
+      expect(loader_instance_spy).to receive(:load).with(options).and_return(results)
+      results.plugins.each do |plugin|
+        expect(registry).to receive(:register_plugin).with(plugin)
+      end
 
       registry.load(loader_class_spy, options)
     end

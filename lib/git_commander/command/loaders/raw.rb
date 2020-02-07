@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../../loader"
+require_relative "../../plugin/loader"
 
 module GitCommander
   class Command
@@ -34,6 +35,11 @@ module GitCommander
           configuration_error = CommandConfigurationError.new(e.message)
           configuration_error.set_backtrace e.backtrace
           result.errors << configuration_error
+        end
+
+        def plugin(name, **options)
+          plugin_result = GitCommander::Plugin::Loader.new(registry).load(name, **options)
+          result.plugins |= plugin_result.plugins
         end
       end
     end
