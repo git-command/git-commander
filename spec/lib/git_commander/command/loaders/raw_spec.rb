@@ -100,5 +100,42 @@ RSpec.describe GitCommander::Command::Loaders::Raw do
       expect(resulting_error.message).to include "undefined method \`danger!"
       expect(resulting_error.backtrace).to_not be_empty
     end
+
+    context "with plugins" do
+      it "registers comamnds with native plugins" do
+        raw_command_string = <<~COMMANDS
+          plugin :git
+
+          command :local_branches do |cmd = nil|
+            cmd.on_run do |options|
+              say git.branches.local.map(&:name)
+            end
+          end
+
+          command :love do
+          end
+        COMMANDS
+
+        native_plugin_loader_spy = spy("Native Plugin Loader")
+        native_plugin_loader_result = GitCommander::LoaderResult.new
+        native_plugin_loader_result.plugins << GitCommander::Plugin.new(:git, registry: registry)
+        expect(loader.result.commands).to be_empty
+        expect(GitCommander::Plugin::Loader).to receive(:new).with(registry).and_return(native_plugin_loader_spy)
+        expect(native_plugin_loader_spy).to receive(:load).with(:git, {}).and_return(native_plugin_loader_result)
+
+        loader.load(raw_command_string)
+
+        expect(loader.result.plugins.size).to eq 1
+        expect(loader.result.commands.size).to eq 2
+
+        (loader.result.commands + loader.result.plugins).flatten.each do |command_or_plugin|
+          expect(command_or_plugin.registry).to eq registry
+        end
+
+        registered_command = loader.result.commands.first
+        output = spy("output")
+        registered_command.output = output
+      end
+    end
   end
 end

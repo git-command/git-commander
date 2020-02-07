@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "loader"
+require_relative "plugin/loader"
 require_relative "command/loaders/file_loader"
 require_relative "command/loaders/raw"
 
@@ -10,10 +11,11 @@ module GitCommander
     class CommandNotFound < StandardError; end
     class LoadError < StandardError; end
 
-    attr_accessor :commands, :name
+    attr_accessor :commands, :name, :plugins
 
     def initialize
       @commands = {}
+      @plugins = {}
     end
 
     # Adds a command to the registry
@@ -33,12 +35,24 @@ module GitCommander
       commands[command.name] = command
     end
 
+    # Adds a pre-built Plugin to the registry
+    # @param [Plugin] plugin the Plugin instance to add to the registry
+    def register_plugin(plugin)
+      GitCommander.logger.debug "[#{logger_tag}] Registering plugin `#{plugin.name}`..."
+
+      plugins[plugin.name] = plugin
+    end
+
     # Adds command(s) to the registry using the given loader
     #
     # @param [CommandLoader] loader the class to use to load with
     def load(loader, *args)
       result = loader.new(self).load(*args)
-      result.commands.each { |cmd| register_command(cmd) } if result.success?
+
+      if result.success?
+        result.plugins.each { |plugin| register_plugin(plugin) }
+        result.commands.each { |cmd| register_command(cmd) }
+      end
 
       result
     end
