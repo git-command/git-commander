@@ -11,14 +11,10 @@ module GitCommander
   # context.  Plugins can define their own inline gems, and can define
   # additional Commands.
   #
-  # @example Loadable Command file with native `git` plugin
-  #   # This is a unique example of using `plugin` without any options.  It
-  #   # uses the `git` plugin provided natively with this gem. Most times you will
-  #   # use a path: "path/to/my/plugin", or url: "https://example.com/myplugin"
-  #   plugin :git
-  #   command :local_branches do |cmd|
-  #     git.branches.local.map(&:name)
-  #   end
+  # @example A simple `git` plugin
+  #   require "git"
+  #   git_instance = Git.open(Dir.pwd, log: GitCommander.logger)
+  #   GitCommander::Plugin.new(:git, source_instance: git_instance)
   #
   class Plugin
     attr_accessor :executor, :name, :registry

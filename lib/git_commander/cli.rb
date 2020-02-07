@@ -41,7 +41,7 @@ module GitCommander
     #
     # @param command [Command] the git-cmd command to parse the arguments for
     # @param arguments [Array] the command line arguments
-    # @return options [Array] the GitCommander::Command options with values
+    # @return [Array<GitCommander::Command::Option>] the available options with values
     def parse_command_options!(command, arguments)
       parser = configure_option_parser_for_command(command)
       parser.parse!(arguments)
