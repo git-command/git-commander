@@ -7,15 +7,16 @@ module GitCommander
   # @abstract A wrapper for system calls
   class System
     DEFAULT_RUN_OPTIONS = {
-      silent: false,
+      silent: false
     }.freeze
 
+    # @abstract Wraps a system command with logging, stderr, and stdout capture
     class Command
       attr_accessor :output, :error, :status
       attr_reader :name, :arguments, :options, :command_with_arguments
       def initialize(command_with_arguments, options = {})
         @command_with_arguments = command_with_arguments
-        @arguments = command_with_arguments.to_s.split(" ").reject { |p| p.empty? }
+        @arguments = command_with_arguments.to_s.split(" ").reject(&:empty?)
         @name = @arguments.shift
         @options = DEFAULT_RUN_OPTIONS.merge(options)
       end
@@ -31,7 +32,7 @@ module GitCommander
       def log_command_initiated
         GitCommander.logger.debug <<~COMMAND_LOG
           [system] Running #{name} with arguments #{arguments.inspect} and options #{options.inspect} ...
-          COMMAND_LOG
+        COMMAND_LOG
       end
 
       def log_command_completed
@@ -40,7 +41,7 @@ module GitCommander
           \tStatus: #{status}
           \tOutput: #{output.inspect}
           \tError: #{error.inspect}
-          COMMAND_LOG
+        COMMAND_LOG
       end
     end
 
@@ -49,7 +50,7 @@ module GitCommander
     include Singleton
 
     # Runs a system command
-    # @param [String] command the command string (with args, flags and switches) to run
+    # @param [String] command_with_arguments the command string (with args, flags and switches) to run
     # @param [Hash] options the options to run the command with
     # @option options [Boolean] :silent Supress the output of the command
     # @option options [Boolean] :blocking Supress errors running the command
@@ -58,8 +59,8 @@ module GitCommander
 
       command.run
 
-      if !command.status.success?
-        raise RunError, "\"#{command.error}\" \"#{command.name}\" failed to run." unless command.options[:blocking] == false
+      unless command.status.success? || command.options[:blocking] == false
+        raise RunError, "\"#{command.error}\" \"#{command.name}\" failed to run."
       end
 
       puts command.output if command.options[:silent] == false
