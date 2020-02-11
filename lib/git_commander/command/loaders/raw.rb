@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "../configurator"
 require_relative "../../loader"
 require_relative "../../plugin/loader"
 
@@ -9,7 +10,6 @@ module GitCommander
       # @abstract Handles loading commands from raw strings
       class Raw < ::GitCommander::Loader
         class CommandParseError < StandardError; end
-        class CommandConfigurationError < StandardError; end
 
         attr_reader :content
 
@@ -28,13 +28,9 @@ module GitCommander
         end
 
         def command(name, &block)
-          new_command = GitCommander::Command.new(name, registry: registry)
-          new_command.instance_exec new_command, &block
-          result.commands << new_command
-        rescue StandardError => e
-          configuration_error = CommandConfigurationError.new(e.message)
-          configuration_error.set_backtrace e.backtrace
-          result.errors << configuration_error
+          result.commands << Configurator.new(registry).configure(name, &block)
+        rescue Configurator::ConfigurationError => e
+          result.errors << e
         end
 
         def plugin(name, **options)
