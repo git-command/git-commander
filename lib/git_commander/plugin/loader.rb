@@ -21,7 +21,6 @@ module GitCommander
       rescue Errno::ENOENT, Errno::EACCES => e
         handle_error LoadError, e
       rescue StandardError => e
-        p e
         handle_error NotFoundError, e
       end
 
