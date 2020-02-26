@@ -31,7 +31,7 @@ RSpec.describe GitCommander::System do
     it "returns the output of the command" do
       run_in_test_context do
         capture_io do
-          expect(described_class.run("echo hi")).to eq("hi\n")
+          expect(described_class.run("echo hi")).to eq("hi")
         end
       end
     end
@@ -40,7 +40,7 @@ RSpec.describe GitCommander::System do
       it "runs and does not send output of the command to STDOUT" do
         run_in_test_context do
           output, _error = capture_io do
-            expect(described_class.run("echo hi", silent: true)).to eq "hi\n"
+            expect(described_class.run("echo hi", silent: true)).to eq "hi"
           end
           expect(output).to_not include "hi"
         end
