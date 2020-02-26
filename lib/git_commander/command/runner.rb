@@ -9,6 +9,8 @@ module GitCommander
     class Runner
       attr_reader :command
 
+      undef :system
+
       def initialize(command)
         @command = command
       end
@@ -20,6 +22,23 @@ module GitCommander
 
       def say(message)
         command.say message
+      end
+
+      def respond_to_missing?(method_sym, include_all = false)
+        plugin_executor(method_sym).respond_to?(method_sym, include_all) ||
+          super(method_sym, include_all)
+      end
+
+      def method_missing(method_sym, *arguments, &block)
+        return plugin_executor(method_sym) if plugin_executor(method_sym)
+
+        super
+      end
+
+      private
+
+      def plugin_executor(plugin_name)
+        @plugin_executor ||= command.registry.find_plugin(plugin_name)&.executor
       end
     end
   end

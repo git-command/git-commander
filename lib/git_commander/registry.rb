@@ -77,6 +77,11 @@ module GitCommander
       command
     end
 
+    def find_plugin(plugin_name)
+      GitCommander.logger.debug "[#{logger_tag}] looking up plugin: #{plugin_name.inspect}"
+      plugins[plugin_name.to_s.to_sym]
+    end
+
     private
 
     def logger_tag
