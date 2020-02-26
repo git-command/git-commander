@@ -25,12 +25,15 @@ module GitCommander
       command = registry.find arguments.shift
       options = parse_command_options!(command, arguments)
       command.run options
-    rescue Registry::CommandNotFound
+    rescue Registry::CommandNotFound => e
       GitCommander.logger.error <<~ERROR_LOG
         #{command} not found in registry.  Available commands: #{registry.commands.keys.inspect}
       ERROR_LOG
 
       help
+    rescue StandardError => e
+      say e.message
+      say e.backtrace
     end
 
     def say(message)
