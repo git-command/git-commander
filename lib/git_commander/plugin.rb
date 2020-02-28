@@ -17,7 +17,7 @@ module GitCommander
   #   GitCommander::Plugin.new(:git, source_instance: git_instance)
   #
   class Plugin
-    attr_accessor :executor, :name, :registry
+    attr_accessor :commands, :executor, :name, :registry
 
     # Creates a Plugin object. +name+ is the name of the plugin.
     #
