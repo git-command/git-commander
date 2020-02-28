@@ -9,15 +9,26 @@ require "git_commander/cli"
 
 runner = GitCommander::CLI.new
 
+plugin_files = Dir[
+  File.join(Dir.pwd, ".git-commands", "plugins", "*.rb")
+]
 command_files = Dir[
   File.join(Dir.pwd, "Workflow"),
-  File.join(Dir.pwd, ".git-commands", "*")
+  File.join(Dir.pwd, ".git-commands", "*.rb")
 ]
 
 command_files.each do |filename|
   loader = runner.registry.load GitCommander::Command::Loaders::FileLoader, filename if File.exist?(filename)
   unless loader.success?
     GitCommander.logger.warn "Unable to load command from: #{filename}\n\tErrors: #{loader.errors.inspect}"
+  end
+end
+
+plugin_files.each do |filename|
+  loader = runner.registry.load GitCommander::Plugin::Loader, filename if File.exist?(filename)
+  unless loader.success?
+    GitCommander.logger.warn "Unable to load plugin from: #{filename}\n\tErrors: #{loader.errors.inspect}"
+    GitCommander.logger.debug "\n\tBacktrace: #{loader.errors.map(&:backtrace)}"
   end
 end
 

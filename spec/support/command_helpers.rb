@@ -11,6 +11,11 @@ module CommandHelpers
     File.expand_path "#{Dir.pwd}/spec/fixtures"
   end
 
+  def copy_file_to_project(origin, destination)
+    FileUtils.mkdir_p File.dirname(destination)
+    FileUtils.cp origin, destination
+  end
+
   def home_dir
     @home_dir ||= expand_path("home")
   end
@@ -26,6 +31,7 @@ module CommandHelpers
   def setup_environment
     setup_home_dir
     setup_project_dir
+    initialize_git_repo
   end
 
   def last_command
@@ -40,6 +46,23 @@ module CommandHelpers
 
   def setup_project_dir
     FileUtils.mkdir_p project_dir
+  end
+
+  def initialize_git_repo
+    run_system_call "touch README.md"
+    run_system_call "git init ."
+    run_system_call "git add README.md"
+    run_system_call 'git commit -am "Initial commit"'
+  end
+
+  def setup_working_branch(branch = "master")
+    run_system_call "git checkout -b #{branch}"
+  end
+
+  def make_commit(message = "Changes")
+    run_system_call 'echo "Changes" >> README.md'
+    run_system_call "git add README.md"
+    run_system_call "git commit -am \"#{message}\""
   end
 
   def command_helpers_teardown
@@ -68,9 +91,7 @@ module CommandHelpers
 
   def run_system_call(command_string)
     last_command.output, last_command.error, last_command.exit_status = run_in_test_context do
-      arguments = command_string.split(" ").reject(&:empty?)
-      command = arguments.shift
-      Open3.capture3(command, *arguments)
+      Open3.capture3(command_string)
     end
   end
 

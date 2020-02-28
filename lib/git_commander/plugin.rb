@@ -17,6 +17,8 @@ module GitCommander
   #   GitCommander::Plugin.new(:git, source_instance: git_instance)
   #
   class Plugin
+    class CommandNotFound < StandardError; end
+
     attr_accessor :commands, :executor, :name, :registry
 
     # Creates a Plugin object. +name+ is the name of the plugin.
@@ -29,6 +31,20 @@ module GitCommander
       @name = name
       @executor = Executor.new(source_instance) if source_instance
       @registry = registry || GitCommander::Registry.new
+    end
+
+    def find_command(command_name)
+      GitCommander.logger.debug "[#{logger_tag}] looking up command: #{command_name.inspect}"
+      command = commands[command_name.to_s.to_sym]
+      raise CommandNotFound, "[#{logger_tag}] #{command_name} does not exist for this plugin" if command.nil?
+
+      command
+    end
+
+    private
+
+    def logger_tag
+      [name, "plugin"].compact.join(" ")
     end
   end
 end

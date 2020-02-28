@@ -43,7 +43,9 @@ RSpec.describe GitCommander::Plugin::Loader do
 
       plugin = result.plugins.first
       expect(plugin.name).to eq :plugin_with_commands
+      expect(result.commands.size).to eq 2
       expect(plugin.commands.size).to eq 2
+      expect(result.commands.first.name).to eq :"plugin-with-commands:hello"
       expect(plugin.executor).to respond_to(:run)
     end
 
