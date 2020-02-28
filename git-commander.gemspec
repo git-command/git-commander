@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["v@codenamev.com"]
 
   spec.summary       = "Make your own git commands"
-  spec.description   = "Make your own git commands"
+  spec.description   = "Build custom flexible git workflows with Ruby!"
   spec.homepage      = "https://github.com/codenamev/git-commander"
   spec.license       = "MIT"
 
