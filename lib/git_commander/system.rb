@@ -13,17 +13,16 @@ module GitCommander
     # @abstract Wraps a system command with logging, stderr, and stdout capture
     class Command
       attr_accessor :output, :error, :status
-      attr_reader :name, :arguments, :options, :command_with_arguments
+      attr_reader :name, :options, :command_with_arguments
       def initialize(command_with_arguments, options = {})
         @command_with_arguments = command_with_arguments
-        @arguments = command_with_arguments.to_s.split(" ").reject(&:empty?)
-        @name = @arguments.shift
+        @name = command_with_arguments.split(/\w/i).first
         @options = DEFAULT_RUN_OPTIONS.merge(options)
       end
 
       def run
         log_command_initiated
-        @output, @error, @status = Open3.capture3(name, *arguments)
+        @output, @error, @status = Open3.capture3(command_with_arguments)
         log_command_completed
       end
 
@@ -31,13 +30,13 @@ module GitCommander
 
       def log_command_initiated
         GitCommander.logger.debug <<~COMMAND_LOG
-          [system] Running #{name} with arguments #{arguments.inspect} and options #{options.inspect} ...
+          [system] Running '#{command_with_arguments}' with options #{options.inspect} ...
         COMMAND_LOG
       end
 
       def log_command_completed
         GitCommander.logger.debug <<~COMMAND_LOG
-          [system] Ran #{name} with arguments #{arguments.inspect} and options #{options.inspect}.
+          [system] Ran '#{command_with_arguments}' with options #{options.inspect}.
           \tStatus: #{status}
           \tOutput: #{output.inspect}
           \tError: #{error.inspect}
@@ -64,7 +63,7 @@ module GitCommander
       end
 
       puts command.output if command.options[:silent] == false
-      command.output
+      command.output.strip
     end
   end
 end
