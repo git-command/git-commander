@@ -96,7 +96,7 @@ RSpec.describe GitCommander::Command::Loaders::Raw do
       expect(result).to_not be_success
 
       resulting_error = result.errors.first
-      expect(resulting_error).to be_kind_of described_class::CommandConfigurationError
+      expect(resulting_error).to be_kind_of GitCommander::Command::Configurator::ConfigurationError
       expect(resulting_error.message).to include "undefined method \`danger!"
       expect(resulting_error.backtrace).to_not be_empty
     end

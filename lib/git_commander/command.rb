@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "command/configurator"
 require_relative "command/option"
 require_relative "command/runner"
 require_relative "command_loader_options"
