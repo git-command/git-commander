@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "spec_helper"
 
 RSpec.describe GitCommander::System do
@@ -55,6 +57,17 @@ RSpec.describe GitCommander::System do
           end
           expect(error).to be_empty
         end
+      end
+    end
+  end
+
+  describe ".say" do
+    it "adds the provided output to the output stream" do
+      run_in_test_context do
+        output, _error = capture_io do
+          described_class.say("Good vibrations")
+        end
+        expect(output).to include "Good vibrations"
       end
     end
   end
