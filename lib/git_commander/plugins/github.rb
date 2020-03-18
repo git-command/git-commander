@@ -5,6 +5,7 @@ gemfile do
   gem "octokit"
 end
 
+plugin :git
 plugin :prompt
 
 command :setup do |cmd|
@@ -19,7 +20,7 @@ command :setup do |cmd|
 
     # Check for 2-factor requirements
     begin
-      client.user
+      github.user
     rescue Octokit::Unauthorized
       github.user(
         gh_user,
