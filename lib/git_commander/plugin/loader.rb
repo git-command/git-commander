@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "bundler/inline"
 require_relative "../command/configurator"
 require_relative "../loader"
 
