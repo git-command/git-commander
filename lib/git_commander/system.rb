@@ -65,5 +65,12 @@ module GitCommander
       puts command.output if command.options[:silent] == false
       command.output.strip
     end
+
+    # Appends to the output stream
+    # @param [String] new_output the string to add to the output stream
+    def self.say(new_output)
+      GitCommander.logger.info "[System#say] #{new_output}"
+      puts new_output
+    end
   end
 end
