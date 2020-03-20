@@ -45,7 +45,7 @@ end
 
 In the above example, we:
 
-1. Use the native `system` plugin.  This gives us access to an instance of [GitCommander::System] inside of our `on_run` block.
+1. Use the native `system` plugin.  This gives us access to an instance of [System](/docs/GitCommander/System) inside of our `on_run` block.
 2. Creates a new `git cmd current :base_branch` command and runs everything in the `on_run` block when we execute it (passing the `:base_branch` in the `options`)
 
 `cmd` can configure multiple `argument`, `flag`, `switch` options, and a `default: 'some value'` can be set for any.
