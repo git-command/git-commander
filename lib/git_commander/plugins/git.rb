@@ -7,6 +7,7 @@ end
 
 CONFIG_FILE_PATH = "#{ENV["HOME"]}/.gitconfig.commander"
 
+# @private
 # Overrides Rugged::Repository#global_config so that we can use a custom config
 # file for all git-commander related configurations
 class RuggedRepositoryWithCustomConfig < SimpleDelegator

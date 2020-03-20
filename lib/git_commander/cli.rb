@@ -5,12 +5,17 @@ require_relative "version"
 require "optparse"
 
 module GitCommander
-  # @abstract Manages command line execution within the context of GitCommander
+  # Manages mapping commands and their arguments that are run from the command-line (via `git-cmd`)
+  # to their corresponding git-commander registered commands.
+  #
+  # @example Run a registered "start" command with a single argument
+  #   GitCommander::CLI.new.run ["start", "new-feature""]
+  #
   class CLI
     attr_reader :output, :registry
 
     # @param registry [GitCommander::Registry] (GitCommander::Registry.new) the
-    # command registry to use for matching available commands
+    #   command registry to use for matching available commands
     # @param output [IO] (STDOUT) the IO object you want to use to send output to when running commands
     def initialize(registry: GitCommander::Registry.new, output: STDOUT)
       @registry = registry
@@ -26,9 +31,7 @@ module GitCommander
       options = parse_command_options!(command, arguments)
       command.run options
     rescue Registry::CommandNotFound
-      GitCommander.logger.error <<~ERROR_LOG
-        #{command} not found in registry.  Available commands: #{registry.commands.keys.inspect}
-      ERROR_LOG
+      log_command_not_found(command)
 
       help
     rescue StandardError => e
@@ -40,7 +43,10 @@ module GitCommander
       output.puts message
     end
 
-    # Parses ARGV for the provided git-cmd command name
+    # Parses an array of values (as ARGV would provide) for the provided git-cmd command name.
+    # The +arguments+ are run through Ruby's [OptionParser] for validation and
+    # then filtered through the +command+ to extract it's options with any
+    # default values.
     #
     # @param command [Command] the git-cmd command to parse the arguments for
     # @param arguments [Array] the command line arguments
@@ -72,6 +78,12 @@ module GitCommander
       say "    git-cmd command [command options] [arguments...]"
       say "COMMANDS"
       say registry.commands.keys.join(", ")
+    end
+
+    def log_command_not_found(command)
+      GitCommander.logger.error <<~ERROR_LOG
+        #{command} not found in registry.  Available commands: #{registry.commands.keys.inspect}
+      ERROR_LOG
     end
 
     def configure_option_parser_for_command(command)

@@ -7,7 +7,7 @@ require_relative "command/runner"
 require_relative "command_loader_options"
 
 module GitCommander
-  # @abstract Wraps domain logic for executing git-cmd commands
+  # Wraps domain logic for executing git-cmd Commands
   class Command
     include GitCommander::CommandLoaderOptions
 
@@ -16,20 +16,25 @@ module GitCommander
 
     # @param name [String, Symbol] the name of the command
     # @param registry [GitCommander::Registry] (GitCommander::Registry.new) the
-    # command registry to use lookups
+    #   command registry to use lookups
     # @param options [Hash] the options to create the command with
+    #
     # @option options [String] :description (nil) a short description to use in the
-    # single line version of the command's help output
+    #   single line version of the command's help output
     # @option options [String] :summary (nil) the long-form description of the command
-    # to use in the command's help output
+    #   to use in the command's help output
     # @option options [IO] :output (STDOUT) the IO object you want to use to
-    # send outut from the command to
+    #   send outut from the command to
     # @option options [Array] :arguments an array of hashes describing the
-    # argument names and default values that can be supplied to the command
+    #   argument names and default values that can be supplied to the command
     # @option options [Array] :flags an array of hashes describing the
-    # flags and default values that can be supplied to the command
+    #   flags and default values that can be supplied to the command
     # @option options [Array] :switches an array of hashes describing the
-    # switches and default values that can be supplied to the command
+    #   switches and default values that can be supplied to the command
+    #
+    # @yieldparam [Array<Option>] run_options an Array of
+    #   Option instances defined from the above +options+
+    #
     def initialize(name, registry: nil, **options, &block)
       @name = name
       @description = options[:description]
@@ -43,16 +48,23 @@ module GitCommander
 
     # Executes the block for the command with the provided run_options.
     #
-    # @param run_options
+    # @param run_options [Array<Option>] an array of Option(s) to pass to the {#block} of this Command
+    #
     def run(run_options = [])
       assign_option_values(run_options)
       Runner.new(self).run options.map(&:to_h).reduce(:merge)
     end
 
+    # Appends the +message+ to the Command's {#output}
+    #
+    # @param message [String] the string to append to the {#output}
+    #
     def say(message)
       output.puts message
     end
 
+    # Adds command-line help text to the {#output} of this Command
+    #
     def help
       say "NAME"
       say "    git-cmd #{name} – #{summary}"
@@ -63,10 +75,25 @@ module GitCommander
       options_help
     end
 
+    # Access to a unique Set of this Command's {#arguments}, {#flags}, and {#switches}
+    #
+    # @return [Set] a unique list of all options this command can accept
+    #
     def options
       Set.new(@arguments + @flags + @switches)
     end
 
+    # Add to this Command's {#arguments}, {#flags}, or {#switches}
+    #
+    # @param option_type [String, Symbol] the type of option to add
+    # @param options [Hash] the options to create the [Option] with
+    #
+    # @option options [String, Symbol] :name the name of the option to add
+    # @option options [Object] :default (nil) the default value of the Option
+    # @option options [String] :description (nil) a description of the Option to use in
+    #   help text output
+    # @option options [Object] :value (nil) the value on of the Option
+    #
     def add_option(option_type, options = {})
       case option_type.to_sym
       when :argument
