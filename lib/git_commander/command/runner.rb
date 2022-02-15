@@ -17,7 +17,7 @@ module GitCommander
 
       def run(options = {})
         GitCommander.logger.info "Running '#{command.name}' with arguments: #{options.inspect}"
-        instance_exec(options, &command.block)
+        instance_exec(**options, &command.block)
       end
 
       def say(message)

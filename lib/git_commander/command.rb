@@ -35,13 +35,13 @@ module GitCommander
     # @yieldparam [Array<Option>] run_options an Array of
     #   Option instances defined from the above +options+
     #
-    def initialize(name, registry: nil, **options, &block)
+    def initialize(name, options = {}, &block)
       @name = name
       @description = options[:description]
       @summary = options[:summary]
       @block = block_given? ? block : proc {}
-      @registry = registry || GitCommander::Registry.new
-      @output = options[:output] || STDOUT
+      @registry = options[:registry] || GitCommander::Registry.new
+      @output = options[:output] || $stdout
 
       define_command_options(options)
     end
@@ -52,7 +52,7 @@ module GitCommander
     #
     def run(run_options = [])
       assign_option_values(run_options)
-      Runner.new(self).run options.map(&:to_h).reduce(:merge)
+      Runner.new(self).run(options.map(&:to_h).reduce(:merge) || {})
     end
 
     # Appends the +message+ to the Command's {#output}
@@ -107,10 +107,10 @@ module GitCommander
 
     private
 
-    def define_command_options(options)
-      @arguments = options_from_hash(options[:arguments])
-      @flags = options_from_hash(options[:flags])
-      @switches = options_from_hash(options[:switches])
+    def define_command_options(new_options)
+      @arguments = options_from_hash(new_options[:arguments])
+      @flags = options_from_hash(new_options[:flags])
+      @switches = options_from_hash(new_options[:switches])
     end
 
     def options_from_hash(hash)

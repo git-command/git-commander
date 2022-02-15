@@ -18,6 +18,8 @@ RSpec.describe "git plugin" do
     stub_const "Rugged::Config", fake_rugged_config
     stub_const "Rugged::Repository", fake_rugged_repository
     allow(fake_rugged_config).to receive(:new).with(git_commander_config_path)
+    allow(mock_system).to receive(:run)
+    allow(mock_system).to receive(:say)
     allow(loader).to receive(:system).and_return(mock_system)
   end
 

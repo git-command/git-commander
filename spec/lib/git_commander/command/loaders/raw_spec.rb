@@ -116,15 +116,16 @@ RSpec.describe GitCommander::Command::Loaders::Raw do
           end
         COMMANDS
 
-        native_plugin_loader_spy = spy("Native Plugin Loader")
+        native_plugin_loader_spy = instance_double(GitCommander::Plugin::Loader)
         native_plugin_loader_result = GitCommander::LoaderResult.new
         native_plugin_loader_result.plugins << GitCommander::Plugin.new(:git, registry: registry)
         expect(loader.result.commands).to be_empty
         expect(GitCommander::Plugin::Loader).to receive(:new).with(registry).and_return(native_plugin_loader_spy)
-        expect(native_plugin_loader_spy).to receive(:load).with(:git, {}).and_return(native_plugin_loader_result)
+        expect(native_plugin_loader_spy).to receive(:load).with(:git).and_return(native_plugin_loader_result)
 
         loader.load(raw_command_string)
 
+        expect(loader.result.errors.size).to be_zero
         expect(loader.result.plugins.size).to eq 1
         expect(loader.result.commands.size).to eq 2
 
