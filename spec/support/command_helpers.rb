@@ -59,8 +59,8 @@ module CommandHelpers
   end
 
   def initialize_git_user
-    run_system_call 'git config user.name "GitHub Actions Bot"', fail_on_error: true
-    run_system_call 'git config user.email "<>"', fail_on_error: true
+    run_system_call 'git config --global user.name "GitHub Actions Bot"', fail_on_error: true
+    run_system_call 'git config --global user.email "<>"', fail_on_error: true
   end
 
   def initialize_git_repo
