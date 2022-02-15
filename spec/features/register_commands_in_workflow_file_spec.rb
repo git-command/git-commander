@@ -39,8 +39,8 @@ RSpec.describe "Run command with arguments" do
       FileUtils.cp "#{fixtures_dir}/hello_command.rb", "#{project_dir}/.git-commands/hello.rb"
 
       run_system_call "#{git_cmd_path} help"
-      expect(last_command.output).
-        to include("faq, hello")
+      expect(last_command.output).to include("faq")
+      expect(last_command.output).to include("hello")
 
       run_system_call "#{git_cmd_path} faq --help"
       expect(last_command.output).
@@ -55,7 +55,8 @@ RSpec.describe "Run command with arguments" do
       FileUtils.rm_rf "#{project_dir}/.git-commands"
       run_system_call "#{git_cmd_path} help"
 
-      expect(last_command.output).to_not include("hello, faq")
+      expect(last_command.output).to_not include("faq")
+      expect(last_command.output).to_not include("hello")
     end
   end
 end

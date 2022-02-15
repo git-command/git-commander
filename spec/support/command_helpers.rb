@@ -5,7 +5,16 @@ require "stringio"
 require "open3"
 
 module CommandHelpers
-  Command = Struct.new(:exit_status, :output, :error)
+  class SystemCallFailure < StandardError; end
+  Command = Struct.new(:exit_status, :output, :error) do
+    def failed?
+      exit_status != 0 && !error.to_s.empty?
+    end
+
+    def error_message_with_exit_status
+      "[exit status: #{exit_status}] #{error}"
+    end
+  end
 
   def fixtures_dir
     File.expand_path "#{Dir.pwd}/spec/fixtures"
@@ -31,6 +40,7 @@ module CommandHelpers
   def setup_environment
     setup_home_dir
     setup_project_dir
+    initialize_git_user
     initialize_git_repo
   end
 
@@ -48,21 +58,26 @@ module CommandHelpers
     FileUtils.mkdir_p project_dir
   end
 
-  def initialize_git_repo
-    run_system_call "touch README.md"
-    run_system_call "git init ."
-    run_system_call "git add README.md"
-    run_system_call 'git commit -am "Initial commit"'
+  def initialize_git_user
+    run_system_call 'git config --global user.name "GitHub Actions Bot"', fail_on_error: true
+    run_system_call 'git config --global user.email "<>"', fail_on_error: true
   end
 
-  def setup_working_branch(branch = "master")
-    run_system_call "git checkout -b #{branch}"
+  def initialize_git_repo
+    run_system_call "touch README.md", fail_on_error: true
+    run_system_call "git init -b main .", fail_on_error: true
+    run_system_call "git add README.md", fail_on_error: true
+    run_system_call 'git commit -am "Initial commit"', fail_on_error: true
+  end
+
+  def setup_working_branch(branch = "main")
+    run_system_call "git checkout -b #{branch}", fail_on_error: true
   end
 
   def make_commit(message = "Changes")
-    run_system_call 'echo "Changes" >> README.md'
-    run_system_call "git add README.md"
-    run_system_call "git commit -am \"#{message}\""
+    run_system_call 'echo "Changes" >> README.md', fail_on_error: true
+    run_system_call "git add README.md", fail_on_error: true
+    run_system_call "git commit -am \"#{message}\"", fail_on_error: true
   end
 
   def command_helpers_teardown
@@ -89,16 +104,20 @@ module CommandHelpers
     $stderr = orig_stderr
   end
 
-  def run_system_call(command_string)
+  def run_system_call(command_string, fail_on_error: false)
     last_command.output, last_command.error, last_command.exit_status = run_in_test_context do
       Open3.capture3(command_string)
     end
+
+    return unless fail_on_error && last_command.failed?
+
+    raise SystemCallFailure, <<~ERROR_MSG
+      System call '#{command_string}' failed to run: #{last_command.error_message_with_exit_status}
+    ERROR_MSG
   end
 
-  def run_in_test_context(&_block)
-    Dir.chdir project_dir do
-      yield
-    end
+  def run_in_test_context(&block)
+    Dir.chdir(project_dir, &block)
   end
 
   private

@@ -125,7 +125,7 @@ RSpec.describe GitCommander::Command::Loaders::Raw do
 
         loader.load(raw_command_string)
 
-        expect(loader.result.errors.size).to be_zero
+        expect(loader.result.errors).to_not be_any
         expect(loader.result.plugins.size).to eq 1
         expect(loader.result.commands.size).to eq 2
 

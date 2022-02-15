@@ -4,7 +4,7 @@ plugin :system
 
 command :current do |cmd|
   cmd.summary "Outputs all commits not on the base branch"
-  cmd.argument :base_branch, default: "master"
+  cmd.argument :base_branch, default: "main"
 
   cmd.on_run do |options|
     current_branch = system.run "git rev-parse --abbrev-ref HEAD"

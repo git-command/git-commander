@@ -22,7 +22,7 @@ RSpec.describe "Run plugin command" do
     end
 
     it "outputs the current changes" do
-      run_system_call "#{git_cmd_path} git-helpers:current"
+      run_system_call "cd #{project_dir} && #{git_cmd_path} git-helpers:current"
       expect(last_command.output).
         to include("Updated README")
     end
