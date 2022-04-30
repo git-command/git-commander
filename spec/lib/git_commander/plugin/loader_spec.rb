@@ -49,6 +49,25 @@ RSpec.describe GitCommander::Plugin::Loader do
       expect(plugin.executor).to respond_to(:run)
     end
 
+    it "loads dependent plugins for the plugin" do
+      allow(File).to receive(:read).and_call_original
+      allow(File).to receive(:read)
+        .with("#{described_class::NATIVE_PLUGIN_DIR}/plugin_with_commands.rb")
+        .and_return(
+          <<~COMMAND
+            plugin :git
+          COMMAND
+        )
+
+      result = loader.load(:plugin_with_commands)
+
+      expect(result).to be_success
+      binding.irb
+
+      expect(result.plugins.map(&:name)).to include :plugin_with_commands
+      expect(result.plugins.map(&:name)).to include :git
+    end
+
     it "reports NotFound if the native plugin doesn't exist" do
       result = loader.load(:bubbles)
 

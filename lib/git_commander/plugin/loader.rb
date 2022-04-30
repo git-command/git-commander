@@ -20,14 +20,16 @@ module GitCommander
       end
 
       def load(name)
-        @plugin = GitCommander::Plugin.new(
-          resolve_plugin_name(name),
-          source_instance: instance_eval(resolve_content(name))
-        )
-        @plugin.commands = @commands
-        result.plugins << @plugin
-        result.commands |= @commands
-        result
+        Bundler.with_original_env do
+          @plugin = GitCommander::Plugin.new(
+            resolve_plugin_name(name),
+            source_instance: instance_eval(resolve_content(name))
+          )
+          @plugin.commands = @commands
+          result.plugins << @plugin
+          result.commands |= @commands
+          result
+        end
       rescue Errno::ENOENT, Errno::EACCES => e
         handle_error LoadError, e
       rescue StandardError => e
@@ -57,7 +59,13 @@ module GitCommander
 
       def plugin(name, **options)
         plugin_result = GitCommander::Plugin::Loader.new(registry).load(name, **options)
-        result.plugins |= plugin_result.plugins
+        if plugin_result.success?
+          result.plugins |= plugin_result.plugins
+        else
+          binding.irb
+          result.errors |= plugin_result.errors
+        end
+        plugin_result
       end
 
       private

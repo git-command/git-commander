@@ -20,6 +20,14 @@ describe GitCommander::Command::Configurator do
         cmd.flag :as_question, default: false
         cmd.switch :loud, default: false
 
+        cmd.helper :yell do |saying|
+          say saying.to_s.upcase
+        end
+
+        cmd.helper :woot do
+          yell :woot
+        end
+
         cmd.on_run do |options|
           response = options[:greeting].dup
           response += ", \#{options[:name]}" unless options[:name].to_s.empty?
@@ -51,6 +59,43 @@ describe GitCommander::Command::Configurator do
         GitCommander::Command::Option.new(name: :loud, value: true)
       ]
       expect(output).to have_received(:puts).with "SALUTATIONS."
+    end
+
+    it "allows setting a helper method" do
+      registered_command = configurator.configure(:parrot) do |cmd|
+        cmd.summary "The ultimate copy-cat."
+        cmd.argument :saying, default: "SQUAWK"
+
+        cmd.helper :yell do |saying|
+          say saying.to_s.upcase
+        end
+
+        cmd.helper :woot do
+          yell :woot
+        end
+
+        cmd.on_run do |options|
+          yell options[:saying]
+          woot
+        end
+      end
+
+      expect(registered_command.summary).to eq "The ultimate copy-cat."
+      expect(registered_command.description).to eq nil
+      expect(registered_command.arguments.size).to eq 1
+      expect(registered_command.arguments.first.name).to eq :saying
+      expect(registered_command.arguments.first.default).to eq "SQUAWK"
+      expect(registered_command.flags.size).to eq 0
+      expect(registered_command.switches.size).to eq 0
+
+      output = spy("output")
+      registered_command.output = output
+
+      registered_command.run [
+        GitCommander::Command::Option.new(name: :saying, value: "Salutations")
+      ]
+      expect(output).to have_received(:puts).with "SALUTATIONS"
+      expect(output).to have_received(:puts).with "WOOT"
     end
 
     it "rescues syntax errors and reports them in the LoaderResult" do
