@@ -31,6 +31,7 @@ module GitCommander
       @name = name
       @executor = Executor.new(source_instance) if source_instance
       @registry = registry || GitCommander::Registry.new
+      @commands = {}
     end
 
     def find_command(command_name)

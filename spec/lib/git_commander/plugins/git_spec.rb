@@ -46,7 +46,7 @@ RSpec.describe "git plugin" do
 
   it "returns a Rugged::Repository instance for the current directory" do
     stub_inline_gemfile
-    expect(git_plugin.plugins.first.executor.source_instance).to eq fake_rugged_repository
+    expect(git_plugin.executor.source_instance).to eq fake_rugged_repository
   end
 
   context "when the custom ~/.gitconfig.commander file already exists" do

@@ -21,11 +21,11 @@ Gem::Specification.new do |spec|
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
+  spec.required_ruby_version = ">= 3.0.0"
 
-  spec.add_development_dependency "byebug", "~> 11"
-  spec.add_development_dependency "rake", "~> 12.3"
+  spec.add_development_dependency "rake", ">= 12.3.0"
   spec.add_development_dependency "rdoc", "~> 6.2"
   spec.add_development_dependency "rspec", "< 4.0"
 
-  spec.add_dependency "bundler", "~> 2.1", ">= 1.10.0"
+  spec.add_dependency "bundler", "< 3.0", ">= 1.10.0"
 end

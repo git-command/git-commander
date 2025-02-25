@@ -7,8 +7,8 @@ RSpec.describe GitCommander::Command::Loaders::Raw do
   let(:loader) { described_class.new(registry) }
 
   describe "#load" do
-    it "returns a Result" do
-      expect(loader.load).to be_a GitCommander::LoaderResult
+    it "returns a Command" do
+      expect(loader.load).to be_a GitCommander::Registry
     end
 
     it "registers commands defined in the provided string with the registry" do
@@ -34,17 +34,17 @@ RSpec.describe GitCommander::Command::Loaders::Raw do
         end
       COMMANDS
 
-      expect(loader.result.commands).to be_empty
+      expect(loader.commands).to be_empty
 
-      loader.load(raw_command_string)
+      result = loader.load(raw_command_string)
 
-      expect(loader.result.commands.size).to eq 2
+      expect(result.commands.size).to eq 2
 
-      loader.result.commands.each do |command|
+      result.commands.each_value do |command|
         expect(command.registry).to eq registry
       end
 
-      registered_command = loader.result.commands.first
+      registered_command = result.commands[:hello]
       expect(registered_command.summary).to eq "Outputs a greeting."
       expect(registered_command.description).to eq "This is way too much information about a simple greeting."
       expect(registered_command.arguments.size).to eq 2
@@ -77,9 +77,9 @@ RSpec.describe GitCommander::Command::Loaders::Raw do
       COMMANDS
 
       result = loader.load(raw_command_string)
-      expect(result).to_not be_success
+      expect(result).not_to be_valid
 
-      resulting_error = result.errors.first
+      resulting_error = result.errors[:commands][:_raw_commands].first
       expect(resulting_error).to be_kind_of described_class::CommandParseError
       expect(resulting_error.message).to include "syntax error"
       expect(resulting_error.backtrace).to_not be_empty
@@ -93,10 +93,10 @@ RSpec.describe GitCommander::Command::Loaders::Raw do
       COMMANDS
 
       result = loader.load(raw_command_string)
-      expect(result).to_not be_success
+      expect(result).to_not be_valid
 
-      resulting_error = result.errors.first
-      expect(resulting_error).to be_kind_of GitCommander::Command::Configurator::ConfigurationError
+      resulting_error = result.errors[:commands][:hello].first
+      expect(resulting_error).to be_kind_of GitCommander::Command::Loaders::Raw::CommandParseError
       expect(resulting_error.message).to include "undefined method \`danger!"
       expect(resulting_error.backtrace).to_not be_empty
     end
@@ -117,22 +117,25 @@ RSpec.describe GitCommander::Command::Loaders::Raw do
         COMMANDS
 
         native_plugin_loader_spy = spy("Native Plugin Loader")
-        native_plugin_loader_result = GitCommander::LoaderResult.new
-        native_plugin_loader_result.plugins << GitCommander::Plugin.new(:git, registry: registry)
-        expect(loader.result.commands).to be_empty
-        expect(GitCommander::Plugin::Loader).to receive(:new).with(registry).and_return(native_plugin_loader_spy)
-        expect(native_plugin_loader_spy).to receive(:load).with(:git, {}).and_return(native_plugin_loader_result)
+        native_plugin = GitCommander::Plugin.new(:git, registry: registry)
+        expect(loader.commands).to be_empty
+        expect(loader.plugins).to be_empty
+        expect(GitCommander::Plugin::Loader).to receive(:new).with(registry) do
+          registry.register_plugin(native_plugin)
+          native_plugin_loader_spy
+        end
+        expect(native_plugin_loader_spy).to receive(:load).with(:git, {}).and_return(native_plugin)
 
-        loader.load(raw_command_string)
+        result = loader.load(raw_command_string)
 
-        expect(loader.result.plugins.size).to eq 1
-        expect(loader.result.commands.size).to eq 2
+        expect(result.plugins.size).to eq 1
+        expect(result.commands.size).to eq 2
 
-        (loader.result.commands + loader.result.plugins).flatten.each do |command_or_plugin|
+        (result.commands.values + result.plugins.values).flatten.each do |command_or_plugin|
           expect(command_or_plugin.registry).to eq registry
         end
 
-        registered_command = loader.result.commands.first
+        registered_command = result.commands[:local_branches]
         output = spy("output")
         registered_command.output = output
       end

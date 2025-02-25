@@ -7,18 +7,17 @@ RSpec.describe GitCommander::Plugin::Loader do
   let(:loader) { described_class.new(registry) }
 
   describe ".load(name)" do
-    it "returns a Result" do
-      expect(loader.load(:system)).to be_a GitCommander::LoaderResult
+    it "returns a Plugin" do
+      expect(loader.load(:system)).to be_a GitCommander::Plugin
     end
 
-    it "loads the plugins result with matching native plugin" do
+    it "loads native plugins" do
       result = loader.load(:system)
 
-      expect(result).to be_success
+      expect(registry).to be_valid
 
-      plugin = result.plugins.first
-      expect(plugin.name).to eq :system
-      expect(plugin.executor).to respond_to(:run)
+      expect(result.name).to eq :system
+      expect(result.executor).to respond_to(:run)
     end
 
     it "loads commands for the plugin" do
@@ -37,24 +36,23 @@ RSpec.describe GitCommander::Plugin::Loader do
         COMMAND
       )
 
-      result = loader.load(:plugin_with_commands)
+      plugin = loader.load(:plugin_with_commands)
 
-      expect(result).to be_success
+      expect(plugin.registry).to be_valid
 
-      plugin = result.plugins.first
       expect(plugin.name).to eq :plugin_with_commands
-      expect(result.commands.size).to eq 2
-      expect(plugin.commands.size).to eq 2
-      expect(result.commands.first.name).to eq :"plugin-with-commands:hello"
+      expect(plugin.registry.commands.size).to eq 2
+      expect(plugin.registry.commands[:"plugin-with-commands:hello"]).to be
+      expect(plugin.registry.commands[:"plugin-with-commands:blank"]).to be
       expect(plugin.executor).to respond_to(:run)
     end
 
-    it "reports NotFound if the native plugin doesn't exist" do
-      result = loader.load(:bubbles)
+    it "reports LoadError if the native plugin doesn't exist" do
+      plugin = loader.load(:bubbles)
 
-      expect(result).to_not be_success
+      expect(plugin.registry).to_not be_valid
 
-      resulting_error = result.errors.first
+      resulting_error = plugin.registry.errors[:plugins][:bubbles].first
       expect(resulting_error).to be_kind_of described_class::LoadError
       expect(resulting_error.message).to include "No such file or directory"
       expect(resulting_error.backtrace).to_not be_empty
@@ -62,11 +60,11 @@ RSpec.describe GitCommander::Plugin::Loader do
 
     it "reports LoadError if there's a problem reading the native plugin" do
       allow(File).to receive(:read).and_raise Errno::EACCES
-      result = loader.load(:bubbles)
+      plugin = loader.load(:bubbles)
 
-      expect(result).to_not be_success
+      expect(plugin.registry).to_not be_valid
 
-      resulting_error = result.errors.first
+      resulting_error = plugin.registry.errors[:plugins][:bubbles].first
       expect(resulting_error).to be_kind_of described_class::LoadError
       expect(resulting_error.message).to include "Permission denied"
       expect(resulting_error.backtrace).to_not be_empty
@@ -83,9 +81,9 @@ RSpec.describe GitCommander::Plugin::Loader do
 
       result = loader.load(:danger)
 
-      expect(result).to_not be_success
+      expect(result.registry).not_to be_valid
 
-      resulting_error = result.errors.first
+      resulting_error = result.registry.errors[:plugins][:danger].first
       expect(resulting_error).to be_kind_of GitCommander::Command::Configurator::ConfigurationError
       expect(resulting_error.message).to include "undefined method"
       expect(resulting_error.backtrace).to_not be_empty

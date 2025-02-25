@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-plugin :system
+plugin(:system)
 
 command :current do |cmd|
   cmd.summary "Outputs all commits not on the base branch"

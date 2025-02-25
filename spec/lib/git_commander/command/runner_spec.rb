@@ -22,4 +22,14 @@ describe GitCommander::Command::Runner do
     runner.run
     expect(output).to have_received(:puts).with "I'm on a boat!"
   end
+
+  it "provides access to the logger" do
+    allow(GitCommander.logger).to receive(:info)
+    command = GitCommander::Command.new(:wtf, output: output) do
+      logger.info "hi"
+    end
+    runner = described_class.new(command)
+    runner.run
+    expect(GitCommander.logger).to have_received(:info).with("hi")
+  end
 end

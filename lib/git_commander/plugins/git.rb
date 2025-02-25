@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
-gemfile do
-  source "https://rubygems.org"
-  gem "rugged"
-end
+gem "rugged", "> 1.0"
 
 CONFIG_FILE_PATH = "#{ENV["HOME"]}/.gitconfig.commander"
 

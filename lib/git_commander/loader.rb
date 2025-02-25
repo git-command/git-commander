@@ -24,5 +24,9 @@ module GitCommander
     def system
       GitCommander::System
     end
+
+    def success?
+      registry.valid?
+    end
   end
 end

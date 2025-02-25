@@ -11,6 +11,10 @@ require "git_commander/version"
 module GitCommander
   module_function
 
+  def root
+    @root ||= "#{Dir.pwd}/.git-commands"
+  end
+
   def logger(*args)
     @logger ||= GitCommander::Logger.new(*args)
   end

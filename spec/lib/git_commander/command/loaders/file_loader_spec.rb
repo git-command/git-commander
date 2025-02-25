@@ -8,18 +8,18 @@ RSpec.describe GitCommander::Command::Loaders::FileLoader do
 
   describe ".load(filename)" do
     it "loads the commands defined in the provided filename" do
-      loader.load File.expand_path("spec/fixtures/workflow_example.rb")
+      result = loader.load File.expand_path("spec/fixtures/workflow_example.rb")
 
-      expect(loader.result).to be_success
-      expect(loader.result.commands.size).to eq 2
+      expect(result).to be_valid
+      expect(result.commands.size).to eq 2
 
-      loader.result.commands.each do |command|
+      result.commands.values.each do |command|
         expect(command.registry).to eq registry
       end
 
-      expect(loader.result.commands.first.name).to eq :hello
+      expect(result.commands[:hello]).to be
 
-      registered_command = loader.result.commands.last
+      registered_command = result.commands.values.last
       expect(registered_command.summary).to eq "Outputs a question and answer combination."
       expect(registered_command.description).to eq "This is way too much information about a simple FAQ section."
       expect(registered_command.arguments.size).to eq 2
@@ -82,9 +82,9 @@ RSpec.describe GitCommander::Command::Loaders::FileLoader do
 
       result = loader.load File.expand_path("spec/fixtures/workflow_example.rb")
 
-      expect(result).to_not be_success
+      expect(result).to_not be_valid
 
-      resulting_error = result.errors.first
+      resulting_error = result.errors[:commands][:_raw_commands].first
       expect(resulting_error).to be_kind_of GitCommander::Command::Loaders::Raw::CommandParseError
       expect(resulting_error.message).to include "syntax error"
       expect(resulting_error.backtrace).to_not be_empty

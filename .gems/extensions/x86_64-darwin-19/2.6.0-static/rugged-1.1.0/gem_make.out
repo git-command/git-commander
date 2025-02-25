@@ -1,0 +1,14 @@
+current directory: /Users/codenamev/src/opensource/git-commander/.gems/gems/rugged-1.1.0/ext/rugged
+/Users/codenamev/.rubies/ruby-2.6.5/bin/ruby -I /Users/codenamev/.rubies/ruby-2.6.5/lib/ruby/site_ruby/2.6.0 -r ./siteconf20201027-39839-1jukqin.rb extconf.rb
+#<Pathname:/Users/codenamev/src/opensource/git-commander/.gems/gems/rugged-1.1.0/ext/rugged/Gemfile>
+/Users/codenamev/.gem/ruby/2.6.5/gems/bundler-2.1.0/lib/bundler/definition.rb:33:in `build': /Users/codenamev/src/opensource/git-commander/.gems/gems/rugged-1.1.0/ext/rugged/Gemfile not found (Bundler::GemfileNotFound)
+	from /Users/codenamev/.gem/ruby/2.6.5/gems/bundler-2.1.0/lib/bundler.rb:195:in `definition'
+	from /Users/codenamev/.gem/ruby/2.6.5/gems/bundler-2.1.0/lib/bundler.rb:143:in `setup'
+	from /Users/codenamev/.gem/ruby/2.6.5/gems/bundler-2.1.0/lib/bundler/setup.rb:20:in `block in <top (required)>'
+	from /Users/codenamev/.gem/ruby/2.6.5/gems/bundler-2.1.0/lib/bundler/ui/shell.rb:136:in `with_level'
+	from /Users/codenamev/.gem/ruby/2.6.5/gems/bundler-2.1.0/lib/bundler/ui/shell.rb:88:in `silence'
+	from /Users/codenamev/.gem/ruby/2.6.5/gems/bundler-2.1.0/lib/bundler/setup.rb:20:in `<top (required)>'
+	from /Users/codenamev/.rubies/ruby-2.6.5/lib/ruby/site_ruby/2.6.0/rubygems/core_ext/kernel_require.rb:92:in `require'
+	from /Users/codenamev/.rubies/ruby-2.6.5/lib/ruby/site_ruby/2.6.0/rubygems/core_ext/kernel_require.rb:92:in `require'
+
+extconf failed, exit code 1

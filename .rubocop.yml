@@ -1,3 +1,5 @@
+TargetRubyVersion: 3.0
+
 Layout/DotPosition:
   EnforcedStyle: trailing
 

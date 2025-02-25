@@ -7,8 +7,8 @@ module GitCommander
 
     def initialize
       @errors = []
-      @commands = []
-      @plugins = []
+      @commands = Set.new([])
+      @plugins = Set.new([])
     end
 
     def success?

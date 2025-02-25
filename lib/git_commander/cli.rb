@@ -4,6 +4,8 @@ require_relative "registry"
 require_relative "version"
 require "optparse"
 
+require "bundler/setup"
+
 module GitCommander
   # Manages mapping commands and their arguments that are run from the command-line (via `git-cmd`)
   # to their corresponding git-commander registered commands.

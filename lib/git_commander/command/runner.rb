@@ -18,10 +18,23 @@ module GitCommander
       def run(options = {})
         GitCommander.logger.info "Running '#{command.name}' with arguments: #{options.inspect}"
         instance_exec(options, &command.block)
+      rescue StandardError => e
+        GitCommander.logger.error <<~ERROR_MESSAGE
+          [#{command.name}] Encountered error while executing:
+          \t#{e.message}
+          \t#{e.backtrace.join("\n\t")}
+        ERROR_MESSAGE
+        abort "[#{command.name}] Failed with: #{e.message}"
+      rescue Interrupt
+        say "\nAborted."
       end
 
       def say(message)
         command.say message
+      end
+
+      def logger
+        GitCommander.logger
       end
 
       def respond_to_missing?(method_sym, include_all = false)
@@ -38,7 +51,7 @@ module GitCommander
       private
 
       def plugin_executor(plugin_name)
-        @plugin_executor ||= command.registry.find_plugin(plugin_name)&.executor
+        command.registry.find_plugin(plugin_name)&.executor
       end
     end
   end

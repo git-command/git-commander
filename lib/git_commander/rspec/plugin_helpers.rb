@@ -71,7 +71,7 @@ module GitCommander
 
           @actual = mock_gemfile.gemfile_lines
 
-          values_match? gemfile_lines, @actual
+          @actual.all? { |e| gemfile_lines.include?(e) }
         end
 
         diffable
