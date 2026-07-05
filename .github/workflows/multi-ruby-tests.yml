@@ -9,13 +9,13 @@ on:
 jobs:
   test:
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os: [ ubuntu-latest, macos-latest ]
-        ruby: ['2.7.5', '3.0.3', '3.1.0 ']
+        ruby: [ '3.3', '3.4', '3.5' ]
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
