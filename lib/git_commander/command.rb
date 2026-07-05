@@ -39,7 +39,7 @@ module GitCommander
       @name = name
       @description = options[:description]
       @summary = options[:summary]
-      @block = block_given? ? block : proc {}
+      @block = block || options[:block] || proc {}
       @registry = options[:registry] || GitCommander::Registry.new
       @output = options[:output] || $stdout
 

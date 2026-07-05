@@ -22,4 +22,19 @@ describe GitCommander::Command::Runner do
     runner.run
     expect(output).to have_received(:puts).with "I'm on a boat!"
   end
+
+  it "resolves each referenced plugin to its own executor" do
+    registry = GitCommander::Registry.new
+    registry.register_plugin GitCommander::Plugin.new(:alpha, source_instance: "alpha instance")
+    registry.register_plugin GitCommander::Plugin.new(:beta, source_instance: "beta instance")
+    command = GitCommander::Command.new(:wtf, output: output, registry: registry) do
+      say alpha.to_s
+      say beta.to_s
+    end
+
+    described_class.new(command).run
+
+    expect(output).to have_received(:puts).with "alpha instance"
+    expect(output).to have_received(:puts).with "beta instance"
+  end
 end

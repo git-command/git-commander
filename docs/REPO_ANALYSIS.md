@@ -3,6 +3,11 @@
 *An in-depth review of how this codebase works, the value it provides, how it is designed,
 and where it has flaws or room to improve.*
 
+> **Status update:** the nine confirmed bugs below, the missing `git cmd help [command]`
+> subcommand, the dependency/lockfile incompatibility with modern Ruby, and the stale CI
+> configuration have all been fixed on this branch (with regression specs). The findings are
+> preserved here as documentation of the analysis against `main` @ `50c0f9f`.
+
 - [What this project is](#what-this-project-is)
 - [The value it provides](#the-value-it-provides)
 - [How it works](#how-it-works)

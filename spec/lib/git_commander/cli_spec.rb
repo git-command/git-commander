@@ -24,6 +24,20 @@ describe GitCommander::CLI do
       expect(output).to have_received(:puts).with "VERSION"
       expect(output).to have_received(:puts).with "    #{GitCommander::VERSION}"
     end
+
+    it "outputs a registered command's help text when given that command's name" do
+      command = GitCommander::Command.new(:wtf, summary: "Shrugs indifferently", output: output)
+      registry.register_command command
+
+      cli.run %w[help wtf]
+
+      expect(output).to have_received(:puts).with "    git-cmd wtf – Shrugs indifferently"
+    end
+
+    it "falls back to the global help message when given an unknown command name" do
+      expect(cli).to receive(:help)
+      cli.run %w[help nope]
+    end
   end
 
   it "displays a help message when the given command is not registerd" do

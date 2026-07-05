@@ -23,7 +23,7 @@ module GitCommander
     # @param [String, Symbol] command_name the name of the command to add to the
     #   registry
     def register(command_name, **options, &block)
-      command = GitCommander::Command.new(command_name.to_sym, registry: self, **options.merge(block: block))
+      command = GitCommander::Command.new(command_name.to_sym, registry: self, **options, &block)
       register_command(command)
     end
 

@@ -35,7 +35,8 @@ module GitCommander
 
     def find_command(command_name)
       GitCommander.logger.debug "[#{logger_tag}] looking up command: #{command_name.inspect}"
-      command = commands[command_name.to_s.to_sym]
+      target_name = command_name.to_s.to_sym
+      command = Array(commands).find { |cmd| cmd.name == target_name }
       raise CommandNotFound, "[#{logger_tag}] #{command_name} does not exist for this plugin" if command.nil?
 
       command
