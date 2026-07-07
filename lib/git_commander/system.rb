@@ -16,7 +16,7 @@ module GitCommander
       attr_reader :name, :options, :command_with_arguments
       def initialize(command_with_arguments, options = {})
         @command_with_arguments = command_with_arguments
-        @name = command_with_arguments.split(/\w/i).first
+        @name = command_with_arguments.split.first
         @options = DEFAULT_RUN_OPTIONS.merge(options)
       end
 

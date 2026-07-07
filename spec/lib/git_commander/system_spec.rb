@@ -30,6 +30,15 @@ RSpec.describe GitCommander::System do
       end
     end
 
+    it "includes the failed command's name in the RunError message" do
+      run_in_test_context do
+        capture_io do
+          expect { described_class.run "ls chowchowracecar" }.
+            to raise_error(GitCommander::System::RunError, /"ls" failed to run/)
+        end
+      end
+    end
+
     it "returns the output of the command" do
       run_in_test_context do
         capture_io do
@@ -58,6 +67,12 @@ RSpec.describe GitCommander::System do
           expect(error).to be_empty
         end
       end
+    end
+  end
+
+  describe GitCommander::System::Command do
+    it "parses the command name from the full command string" do
+      expect(described_class.new("git log --oneline").name).to eq "git"
     end
   end
 

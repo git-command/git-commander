@@ -29,7 +29,7 @@ module GitCommander
 
       # Here we have to run the command in isolation to avoid a recursive loop
       # to log this command run to fetch the config setting.
-      configured_log_file_path = `git config --get commander.log-file-path`
+      configured_log_file_path = `git config --get commander.log-file-path`.chomp
 
       return @log_file_path = DEFAULT_LOG_FILE if configured_log_file_path.empty?
 

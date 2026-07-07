@@ -105,9 +105,16 @@ module CommandHelpers
   end
 
   def run_system_call(command_string, fail_on_error: false)
-    last_command.output, last_command.error, last_command.exit_status = run_in_test_context do
+    stdout, stderr, status = run_in_test_context do
       Open3.capture3(command_string)
     end
+    # Open3 returns strings in the locale encoding (US-ASCII in minimal CI
+    # environments), while our expectations are UTF-8 literals. The bytes are
+    # UTF-8 either way, so relabel them to keep comparisons from raising
+    # Encoding::CompatibilityError.
+    last_command.output = stdout.force_encoding(Encoding::UTF_8)
+    last_command.error = stderr.force_encoding(Encoding::UTF_8)
+    last_command.exit_status = status.exitstatus
 
     return unless fail_on_error && last_command.failed?
 

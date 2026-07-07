@@ -97,7 +97,8 @@ RSpec.describe GitCommander::Command::Loaders::Raw do
 
       resulting_error = result.errors.first
       expect(resulting_error).to be_kind_of GitCommander::Command::Configurator::ConfigurationError
-      expect(resulting_error.message).to include "undefined method \`danger!"
+      # Ruby 3.4 changed NoMethodError quoting from `danger!' to 'danger!'
+      expect(resulting_error.message).to match(/undefined method [`']danger!'/)
       expect(resulting_error.backtrace).to_not be_empty
     end
 

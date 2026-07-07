@@ -23,8 +23,10 @@ module GitCommander
         @value = value
       end
 
+      # An explicitly assigned +false+ must win over the default, so only a
+      # +nil+ value (meaning "unset") falls back.
       def value
-        @value || @default
+        @value.nil? ? @default : @value
       end
 
       def ==(other)
@@ -34,6 +36,10 @@ module GitCommander
           other.description == description
       end
       alias eql? ==
+
+      def hash
+        [self.class, name, default, description].hash
+      end
 
       def to_h
         { name => value }

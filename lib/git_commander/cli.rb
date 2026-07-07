@@ -27,11 +27,14 @@ module GitCommander
     # @param args [Array] (ARGV) a list of arguments to pass to the registered command
     def run(args = ARGV)
       arguments = Array(args)
-      command = registry.find arguments.shift
+      command_name = arguments.shift
+      return run_help(arguments) if command_name.to_s == "help"
+
+      command = registry.find command_name
       options = parse_command_options!(command, arguments)
       command.run options
     rescue Registry::CommandNotFound
-      log_command_not_found(command)
+      log_command_not_found(command_name)
 
       help
     rescue StandardError => e
@@ -69,6 +72,19 @@ module GitCommander
 
     private
 
+    # Runs the help command, showing a specific command's help text when a
+    # command name is given (`git-cmd help my-command`), and the global help
+    # text otherwise.
+    def run_help(arguments)
+      command_name = arguments.shift
+      return help if command_name.to_s.empty?
+
+      registry.find(command_name).help
+    rescue Registry::CommandNotFound
+      log_command_not_found(command_name)
+      help
+    end
+
     def help
       say "NAME"
       say "    git-cmd – Git Commander allows running custom git commands from a centralized location."
@@ -80,9 +96,9 @@ module GitCommander
       say registry.commands.keys.join(", ")
     end
 
-    def log_command_not_found(command)
+    def log_command_not_found(command_name)
       GitCommander.logger.error <<~ERROR_LOG
-        #{command} not found in registry.  Available commands: #{registry.commands.keys.inspect}
+        #{command_name.inspect} not found in registry.  Available commands: #{registry.commands.keys.inspect}
       ERROR_LOG
     end
 

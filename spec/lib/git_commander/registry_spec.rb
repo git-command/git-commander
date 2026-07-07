@@ -70,6 +70,15 @@ describe GitCommander::Registry do
     expect(wtf_command.description).to eq("WTF is up with x")
   end
 
+  it "passes the given block through to the registered command" do
+    block_ran = false
+    registry.register(:wtf) { |_options| block_ran = true }
+
+    registry.find(:wtf).run
+
+    expect(block_ran).to be true
+  end
+
   it "allows registering pre-built commands" do
     command = GitCommander::Command.new(:wtf)
     registry.register_command command

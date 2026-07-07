@@ -22,9 +22,13 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_development_dependency "rake", "~> 12.3"
-  spec.add_development_dependency "rdoc", "~> 6.2"
-  spec.add_development_dependency "rspec", "< 4.0"
+  spec.required_ruby_version = ">= 3.2"
 
-  spec.add_dependency "bundler", "~> 2.1", ">= 1.10.0"
+  spec.add_development_dependency "rake", "~> 13.0"
+  spec.add_development_dependency "rdoc", "~> 6.5"
+  spec.add_development_dependency "rspec", "~> 3.12"
+
+  spec.add_dependency "bundler", ">= 2.1"
+  # logger is a bundled gem (no longer a default gem) as of Ruby 3.5
+  spec.add_dependency "logger"
 end

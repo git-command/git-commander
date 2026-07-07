@@ -38,7 +38,8 @@ module GitCommander
       private
 
       def plugin_executor(plugin_name)
-        @plugin_executor ||= command.registry.find_plugin(plugin_name)&.executor
+        @plugin_executors ||= {}
+        @plugin_executors[plugin_name] ||= command.registry.find_plugin(plugin_name)&.executor
       end
     end
   end
