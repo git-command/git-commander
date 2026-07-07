@@ -29,4 +29,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.12"
 
   spec.add_dependency "bundler", ">= 2.1"
+  # logger is a bundled gem (no longer a default gem) as of Ruby 3.5
+  spec.add_dependency "logger"
 end

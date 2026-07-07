@@ -3,6 +3,7 @@ PATH
   specs:
     git-commander (0.1.0)
       bundler (>= 2.1)
+      logger
 
 GEM
   remote: https://rubygems.org/
@@ -10,6 +11,8 @@ GEM
     date (3.5.1)
     diff-lcs (1.6.2)
     erb (6.0.4)
+    logger (1.7.0)
+    ostruct (0.6.3)
     psych (5.4.0)
       date
       stringio
@@ -42,6 +45,7 @@ PLATFORMS
 
 DEPENDENCIES
   git-commander!
+  ostruct
   rake (~> 13.0)
   rdoc (~> 6.5)
   rspec (~> 3.12)
@@ -51,6 +55,8 @@ CHECKSUMS
   diff-lcs (1.6.2) sha256=9ae0d2cba7d4df3075fe8cd8602a8604993efc0dfa934cff568969efb1909962
   erb (6.0.4) sha256=38e3803694be357fe2bfe312487c74beaf9fb4e5beb3e22498952fe1645b95d9
   git-commander (0.1.0)
+  logger (1.7.0) sha256=196edec7cc44b66cfb40f9755ce11b392f21f7967696af15d274dde7edff0203
+  ostruct (0.6.3) sha256=95a2ed4a4bd1d190784e666b47b2d3f078e4a9efda2fccf18f84ddc6538ed912
   psych (5.4.0) sha256=14f72d69a611af663d7d70e4a7b67d9eb1f3ae9f8d916b478961d5a0075ba5b7
   rake (13.4.2) sha256=cb825b2bd5f1f8e91ca37bddb4b9aaf345551b4731da62949be002fa89283701
   rdoc (6.17.0) sha256=0f50d4e568fc98195f9bb155a9e8dff6c7feabfb515fb22ef6df1d12ad5a02b7
